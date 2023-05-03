@@ -1,25 +1,23 @@
-import logo from './logo.svg';
-import './App.css';
-
-function App() {
+import { React } from "react";
+import "primereact/resources/themes/saga-blue/theme.css";
+import "primereact/resources/primereact.min.css";
+import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
+import "primeicons/primeicons.css";
+import MainPage from "./MainPage";
+import Navbarr from "./Navbarr";
+import TTest from "./TTest";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <BrowserRouter>
+        <Navbarr />
+        <Routes>
+          <Route path="/" element={<MainPage />} />
+          <Route path="/test" element={<TTest />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
-}
-
+};
 export default App;
