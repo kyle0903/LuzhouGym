@@ -1,6 +1,36 @@
+.p-menubar{
+    background-color: #0d0d47;
+    border:1px solid #1169b4;
+    border-radius: 0%;
+    font-weight: bold;
+}
 .p-menubar .p-menubar-root-list > .p-menuitem > .p-menuitem-link .p-menuitem-text{
-    color:black
+    color:#1069B3;
+    
 }
 .p-menubar .p-menubar-root-list > .p-menuitem > .p-menuitem-link .p-menuitem-icon{
-    color:black
+    color:#1069B3;
+}
+.p-fieldset .p-fieldset-legend{
+    margin:0;
+    color:#1069B3;
+    background-color: #0d0d47;
+    border-radius:0%;
+}
+.p-fieldset .p-fieldset-content{
+    padding:0;
+}
+.p-fieldset{
+    border-radius: 0%;
+    border:0px;
+}
+.div_comp{
+    background-color: #0d0d47;;
+}
+.text_comp{
+    font-weight: bold;
+    font-size: 18px;
+    margin:1rem;
+    letter-spacing: 5px;
+    color:rgba(240, 248, 255, 0.817);
 }

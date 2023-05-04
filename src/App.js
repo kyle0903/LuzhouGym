@@ -6,6 +6,7 @@ import "primeicons/primeicons.css";
 import MainPage from "./MainPage";
 import Navbarr from "./Navbarr";
 import TTest from "./TTest";
+import "./test.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 const App = () => {
   return (

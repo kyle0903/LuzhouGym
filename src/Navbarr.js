@@ -2,7 +2,6 @@ import React from "react";
 import { Menubar } from "primereact/menubar";
 import { InputText } from "primereact/inputtext";
 import gymLogo from "./pic/gymLogo.png";
-import "./test.css";
 import { useNavigate } from "react-router-dom";
 
 function Navbarr() {
