@@ -1,8 +1,11 @@
 import React from "react";
 import { Fieldset } from "primereact/fieldset";
-import { TabView, TabPanel } from "primereact/tabview";
+import { Card } from "primereact/card";
 import NavPic from "./NavPic";
 import company from "./pic/company.png";
+import coach1 from "./pic/coach1.png";
+import coach2 from "./pic/coach2.png";
+import coach3 from "./pic/coach3.png";
 
 function MainPage() {
   const legendTemplate_comp = (
@@ -17,6 +20,9 @@ function MainPage() {
       <span className="font-bold text-lg"> 教練介紹</span>
     </div>
   );
+  const coach1_pic = <img alt="Card" src={coach1} />;
+  const coach2_pic = <img alt="Card" src={coach2} />;
+  const coach3_pic = <img alt="Card" src={coach3} />;
   return (
     <div>
       <NavPic />
@@ -35,46 +41,30 @@ function MainPage() {
       </Fieldset>
       <Fieldset legend={legendTemplate_coca}>
         <div style={{ display: "flex" }}>
-          <div className="card">
-            <TabView>
-              <TabPanel header="Header I">
-                <p className="m-0">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-                  irure dolor in reprehenderit in voluptate velit esse cillum
-                  dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-                  cupidatat non proident, sunt in culpa qui officia deserunt
-                  mollit anim id est laborum.
-                </p>
-              </TabPanel>
-              <TabPanel header="Header II">
-                <p className="m-0">
-                  Sed ut perspiciatis unde omnis iste natus error sit voluptatem
-                  accusantium doloremque laudantium, totam rem aperiam, eaque
-                  ipsa quae ab illo inventore veritatis et quasi architecto
-                  beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem
-                  quia voluptas sit aspernatur aut odit aut fugit, sed quia
-                  consequuntur magni dolores eos qui ratione voluptatem sequi
-                  nesciunt. Consectetur, adipisci velit, sed quia non numquam
-                  eius modi.
-                </p>
-              </TabPanel>
-              <TabPanel header="Header III">
-                <p className="m-0">
-                  At vero eos et accusamus et iusto odio dignissimos ducimus qui
-                  blanditiis praesentium voluptatum deleniti atque corrupti quos
-                  dolores et quas molestias excepturi sint occaecati cupiditate
-                  non provident, similique sunt in culpa qui officia deserunt
-                  mollitia animi, id est laborum et dolorum fuga. Et harum
-                  quidem rerum facilis est et expedita distinctio. Nam libero
-                  tempore, cum soluta nobis est eligendi optio cumque nihil
-                  impedit quo minus.
-                </p>
-              </TabPanel>
-            </TabView>
-          </div>
+          <Card title="Title" subTitle="Subtitle" header={coach1_pic}>
+            <p className="m-0">
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+              Inventore sed consequuntur error repudiandae numquam deserunt
+              quisquam repellat libero asperiores earum nam nobis, culpa ratione
+              quam perferendis esse, cupiditate neque quas!
+            </p>
+          </Card>
+          <Card title="Title" subTitle="Subtitle" header={coach2_pic}>
+            <p className="m-0">
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+              Inventore sed consequuntur error repudiandae numquam deserunt
+              quisquam repellat libero asperiores earum nam nobis, culpa ratione
+              quam perferendis esse, cupiditate neque quas!
+            </p>
+          </Card>
+          <Card title="Title" subTitle="Subtitle" header={coach3_pic}>
+            <p className="m-0">
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+              Inventore sed consequuntur error repudiandae numquam deserunt
+              quisquam repellat libero asperiores earum nam nobis, culpa ratione
+              quam perferendis esse, cupiditate neque quas!
+            </p>
+          </Card>
         </div>
       </Fieldset>
     </div>
