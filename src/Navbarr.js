@@ -11,12 +11,15 @@ function Navbarr() {
       label: "首頁",
       icon: "pi pi-fw pi-home",
       command: () => {
-        navigate("/test");
+        navigate("/");
       },
     },
     {
       label: "會員中心",
       icon: "pi pi-fw pi-user",
+      command: () => {
+        navigate("/member");
+      },
     },
     {
       label: "健身論壇",

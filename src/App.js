@@ -8,6 +8,7 @@ import Navbarr from "./Navbarr";
 import TTest from "./TTest";
 import "./test.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Member from "./Member";
 const App = () => {
   return (
     <div>
@@ -15,7 +16,7 @@ const App = () => {
         <Navbarr />
         <Routes>
           <Route path="/" element={<MainPage />} />
-          <Route path="/test" element={<TTest />} />
+          <Route path="/member" element={<Member />} />
         </Routes>
       </BrowserRouter>
     </div>
