@@ -9,6 +9,7 @@ import TTest from "./TTest";
 import "./test.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Member from "./Member";
+import Login from "./Login";
 const App = () => {
   return (
     <div>
@@ -16,7 +17,7 @@ const App = () => {
         <Navbarr />
         <Routes>
           <Route path="/" element={<MainPage />} />
-          <Route path="/member" element={<Member />} />
+          <Route path="/member" element={<Login />} />
         </Routes>
       </BrowserRouter>
     </div>
