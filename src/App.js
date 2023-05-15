@@ -5,10 +5,8 @@ import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "primeicons/primeicons.css";
 import MainPage from "./MainPage";
 import Navbarr from "./Navbarr";
-import TTest from "./TTest";
 import "./test.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Member from "./Member";
 import Login from "./Login";
 const App = () => {
   return (
@@ -18,6 +16,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<MainPage />} />
           <Route path="/member" element={<Login />} />
+          <Route path="/member/:validcode" element={<Login />} />
         </Routes>
       </BrowserRouter>
     </div>

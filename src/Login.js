@@ -6,6 +6,7 @@ import { Password } from "primereact/password";
 import { TabMenu } from "primereact/tabmenu";
 import Axios from "axios";
 import moment from "moment";
+import { useNavigate, useParams } from "react-router-dom";
 function Login() {
   //密碼的值
   const [pwd, setPwd] = useState("");
@@ -22,6 +23,22 @@ function Login() {
   const [btn_footer, setBtnFooter] = useState("登入");
   //記錄現在時間
   const currentTime = moment(new Date()).format("YYYY-MM-DD hh:mm:ss");
+  //驗證碼
+  const { validcode } = useParams();
+  //每次更新會跑一次的動作
+  useEffect(() => {
+    if (validcode) {
+      console.log("恭喜你順利註冊成功！");
+      Axios.get(`http://localhost:8081/api/signEnable/${validcode}`).then(
+        (data) => {
+          console.log(data.data.message);
+          setTimeout(() => {
+            window.location.replace("http://localhost:3000/member");
+          }, 3000);
+        }
+      );
+    }
+  }, []);
   //清除所有欄位
   function ClearAll() {
     setPwd("");
@@ -74,7 +91,7 @@ function Login() {
           mail: mail,
           currentTime: currentTime,
         }).then((data) => {
-          console.log(data.data);
+          console.log(data);
         });
       }
     } else {
