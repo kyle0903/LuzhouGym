@@ -18,7 +18,7 @@ function Navbarr() {
       label: "會員中心",
       icon: "pi pi-fw pi-user",
       command: () => {
-        navigate("/member");
+        navigate("/login");
       },
     },
     {

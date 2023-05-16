@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import { React } from "react";
 import Carousel from "react-bootstrap/Carousel";
 import gymNavPic_1 from "./pic/gymNavPic_1.jpg";
 import gymNavPic_2 from "./pic/gymNavPic_2.jpg";

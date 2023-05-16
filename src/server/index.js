@@ -4,6 +4,7 @@ const cors = require("cors");
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
+const jwt = require("jsonwebtoken");
 const app = express();
 const PORT = 8081;
 const db = mysql.createConnection({
@@ -25,7 +26,7 @@ app.post("/api/sign", (req, res) => {
   let rand = crypto.randomBytes(32).toString("hex");
   function sendmail(email, rand) {
     var htmls =
-      "請點擊<a href='http://localhost:3000/member/" +
+      "請點擊<a href='http://localhost:3000/login/" +
       rand +
       "'>這個連結</a>認證您的蘆洲健身房會員帳號";
     var mailer = nodemailer.createTransport({
@@ -107,7 +108,6 @@ app.get("/api/signEnable/:validcode", (req, res) => {
       console.log(result, result.length);
       if (err) {
         console.log(err);
-        res.send({ state: "failed", message: "該連結已過期" });
       } else {
         if (result.length == 1) {
           db.query(
@@ -136,13 +136,52 @@ app.get("/api/signEnable/:validcode", (req, res) => {
           );
         } else {
           res.send({
-            state: "success",
+            state: "failed",
             message: "該連結已過期",
           });
         }
       }
     }
   );
+});
+//登入會員
+app.post("/api/login", (req, res) => {
+  const user = req.body.user;
+  const pwd = req.body.pwd;
+  db.query("SELECT * FROM member_info WHERE user=?", user, (err, result) => {
+    if (err) {
+      console.log(err);
+    } else {
+      if (result.length == 0) {
+        console.log("1");
+        res.send({
+          state: "failed",
+          message: "會員帳號並不存在，請先前往註冊",
+        });
+      } else {
+        const psRes = bcrypt.compareSync(pwd, result[0].password);
+        if (!psRes) {
+          res.send({
+            state: "failed",
+            message: "您輸入的帳號或密碼有誤！",
+          });
+        } else {
+          const payload = {
+            id: result[0].id,
+            user: result[0].user,
+          };
+          const token = jwt.sign(payload, "pluto", { expiresIn: "24h" }); // generate token based on username
+          // return the token
+          res.send({
+            state: "success",
+            message: "登入中...",
+            token,
+            id: result[0].id,
+          });
+        }
+      }
+    }
+  });
 });
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);

@@ -8,6 +8,7 @@ import Navbarr from "./Navbarr";
 import "./test.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./Login";
+import Member from "./Member";
 const App = () => {
   return (
     <div>
@@ -15,8 +16,9 @@ const App = () => {
         <Navbarr />
         <Routes>
           <Route path="/" element={<MainPage />} />
-          <Route path="/member" element={<Login />} />
-          <Route path="/member/:validcode" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/login/:validcode" element={<Login />} />
+          <Route path="/member" element={<Member />} />
         </Routes>
       </BrowserRouter>
     </div>

@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import Login from "./Login";
+import React, { useRef } from "react";
+import { useParams } from "react-router-dom";
+
 function Member() {
-  const [isLogin, setIsLogin] = useState(false);
-  //在這判斷有無登入，如果有就顯示下面畫面，沒有就顯示Login.js
-  return <div>{isLogin ? <div>Member</div> : <Login />}</div>;
+  const { id } = useParams();
+
+  return <div>{id}</div>;
 }
 
 export default Member;
