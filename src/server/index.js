@@ -68,6 +68,10 @@ app.post("/api/sign", (req, res) => {
                 user,
                 (err, result2) => {
                   if (err) {
+                    res.send({
+                      status: "failed",
+                      message: "註冊過程中發現問題...",
+                    });
                     console.log(err);
                   } else {
                     //這邊可以select random_sign where user_id=id，原因是因為如果同個帳號已經有先寄過驗證碼，那就要刪除原本的再新增新的
@@ -76,6 +80,10 @@ app.post("/api/sign", (req, res) => {
                       [result2[0].id, rand],
                       (err, result2) => {
                         if (err) {
+                          res.send({
+                            status: "failed",
+                            message: "註冊過程中發現問題...",
+                          });
                           console.log(err);
                         } else {
                           sendmail(mail, rand);
@@ -125,7 +133,7 @@ app.get("/api/signEnable/:validcode", (req, res) => {
                       console.log(err);
                     } else {
                       res.send({
-                        state: "success",
+                        status: "success",
                         message: "已啟用會員資格，請重新登入",
                       });
                     }
@@ -135,8 +143,9 @@ app.get("/api/signEnable/:validcode", (req, res) => {
             }
           );
         } else {
+          console.log("???");
           res.send({
-            state: "failed",
+            status: "failed",
             message: "該連結已過期",
           });
         }
@@ -155,15 +164,15 @@ app.post("/api/login", (req, res) => {
       if (result.length == 0) {
         console.log("1");
         res.send({
-          state: "failed",
+          status: "failed",
           message: "會員帳號並不存在，請先前往註冊",
         });
       } else {
         const psRes = bcrypt.compareSync(pwd, result[0].password);
-        if (!psRes) {
+        if (!psRes || result[0].vertify === 0) {
           res.send({
-            state: "failed",
-            message: "您輸入的帳號或密碼有誤！",
+            status: "failed",
+            message: "您輸入的帳號或密碼有誤，或是帳號還未經過認證",
           });
         } else {
           const payload = {
@@ -173,13 +182,25 @@ app.post("/api/login", (req, res) => {
           const token = jwt.sign(payload, "pluto", { expiresIn: "24h" }); // generate token based on username
           // return the token
           res.send({
-            state: "success",
+            status: "success",
             message: "登入中...",
             token,
             id: result[0].id,
           });
         }
       }
+    }
+  });
+});
+//驗證token
+app.post("/api/token", (req, res) => {
+  token = req.body.token;
+
+  jwt.verify(token, "pluto", function (err, decoded) {
+    if (err) {
+      res.send(false); // 失敗時回傳 Unauthorized 錯誤訊息
+    } else {
+      res.send(decoded); // 將解密後token回傳
     }
   });
 });

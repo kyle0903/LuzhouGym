@@ -7,7 +7,7 @@ import { TabMenu } from "primereact/tabmenu";
 import { Toast } from "primereact/toast";
 import Axios from "axios";
 import moment from "moment";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 function Login() {
   //密碼的值
   const [pwd, setPwd] = useState("");
@@ -28,32 +28,35 @@ function Login() {
   const { validcode } = useParams();
   //通知
   const toastTC = useRef(null);
+  //因為React 18的useEffect會跑兩次，這個變數是為了判斷是否第二次執行useEffect
+  var isTwice = false;
+
   //每次更新會跑一次的動作
   useEffect(() => {
-    if (validcode) {
+    if (validcode && !isTwice) {
       Axios.get(`http://localhost:8081/api/signEnable/${validcode}`).then(
         (data) => {
-          //state是failed就用toast.error，state是success就用toast.success
-          if (data.data.state === "success") {
+          if (data.data.status === "success") {
             toastTC.current.show({
               severity: "success",
               summary: "通知",
               detail: data.data.message,
-              life: 1500,
+              life: 3000,
             });
           } else {
             toastTC.current.show({
               severity: "error",
               summary: "警告",
               detail: data.data.message,
-              life: 1500,
+              life: 3000,
             });
           }
-          setTimeout(() => {
-            window.location.replace("http://localhost:3000/login");
-          }, 3000);
         }
       );
+      isTwice = true;
+      setTimeout(() => {
+        window.location.replace("http://localhost:3000/login");
+      }, 3000);
     }
   }, []);
   //清除所有欄位
@@ -100,20 +103,18 @@ function Login() {
     if (btn_footer === "註冊") {
       if (user === "" || pwd === "" || mail === "") {
         //這邊可以再多加點條件，不然輸入空格也會過
-        //顯示以下資訊
         toastTC.current.show({
           severity: "error",
           summary: "警告",
           detail: "有空值未填寫",
-          life: 1500,
+          life: 3000,
         });
       } else if (pwd !== pwdCheck) {
-        //顯示以下資訊
         toastTC.current.show({
           severity: "error",
           summary: "警告",
           detail: "密碼不同步",
-          life: 1500,
+          life: 3000,
         });
       } else {
         Axios.post("http://localhost:8081/api/sign", {
@@ -122,20 +123,19 @@ function Login() {
           mail: mail,
           currentTime: currentTime,
         }).then((data) => {
-          //如果state是success就顯示已寄信到信箱，沒有的話就顯示註冊時發生一點問題
-          if (data.data.state === "success") {
+          if (data.data.status === "success") {
             toastTC.current.show({
               severity: "success",
               summary: "通知",
               detail: data.data.message,
-              life: 1500,
+              life: 3000,
             });
           } else {
             toastTC.current.show({
               severity: "error",
               summary: "警告",
-              detail: "註冊時發生一點問題...",
-              life: 1500,
+              detail: data.data.message,
+              life: 3000,
             });
           }
         });
@@ -148,33 +148,32 @@ function Login() {
           severity: "error",
           summary: "警告",
           detail: "有空值未填寫",
-          life: 1500,
+          life: 3000,
         });
       } else {
         Axios.post("http://localhost:8081/api/login", {
           user: user,
           pwd: pwd,
         }).then((data) => {
-          if (data.data.state === "success") {
+          if (data.data.status === "success") {
             toastTC.current.show({
               severity: "success",
               summary: "通知",
               detail: data.data.message,
-              life: 1500,
+              life: 3000,
             });
             window.localStorage.setItem("token", data.data.token);
-            console.log(window.localStorage.getItem("token"));
             setTimeout(() => {
-              window.location.replace(
-                "http://localhost:3000/member/" + data.data.id
-              );
-            }, 1500);
+              const path = "http://localhost:3000/member/" + data.data.id;
+              window.location.replace(path);
+              //navigate(path, { replace: true });
+            }, 3000);
           } else {
             toastTC.current.show({
               severity: "error",
               summary: "警告",
               detail: data.data.message,
-              life: 1500,
+              life: 3000,
             });
           }
         });
