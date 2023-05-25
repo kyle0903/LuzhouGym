@@ -182,11 +182,14 @@ function Login() {
   }
   return (
     <div className="memberLoginCard">
-      <label
-        style={{ fontSize: "40px", fontWeight: "bold", marginBottom: "50px" }}
-      >
-        會員中心
-      </label>
+      <div style={{ textAlign: "center" }}>
+        <label
+          style={{ fontSize: "40px", fontWeight: "bold", marginBottom: "50px" }}
+        >
+          會員中心
+        </label>
+      </div>
+
       <TabMenu
         model={items}
         activeIndex={activeIndex}
@@ -206,6 +209,7 @@ function Login() {
               onChange={(e) => {
                 setUser(e.target.value);
               }}
+              keyfilter={/[^s]/}
             />
           </div>
           <div className="p-inputgroup flex-1">
@@ -217,6 +221,7 @@ function Login() {
               onChange={(e) => setPwd(e.target.value)}
               placeholder="輸入密碼"
               toggleMask
+              keyfilter={/[^s]/}
             />
           </div>
         </div>
@@ -232,6 +237,7 @@ function Login() {
                 onChange={(e) => setPwdCheck(e.target.value)}
                 placeholder="再次確認密碼"
                 toggleMask
+                keyfilter={/[^s]/}
               />
             </div>
             <div className="p-inputgroup flex-1" style={{ marginTop: "25px" }}>
@@ -244,6 +250,7 @@ function Login() {
                 onChange={(e) => {
                   setMail(e.target.value);
                 }}
+                keyfilter={/[^s]/}
               />
             </div>
           </div>

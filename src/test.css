@@ -40,9 +40,47 @@
     width:90%;
 }
 .memberLoginCard{
-    width:50%;
+    width: 50%;
     position: absolute;
-    left:25%;
-    top:20%;
-    text-align: center;
+    left: 25%;
+    top: 15%;
+}
+.memberBasicCard{
+    width: 65%;
+    position: absolute;
+    left: 17%;
+    top: 15%;
+}
+.p-inplace.p-component {
+    display: inline-block;
+}
+.p-inplace .p-inplace-display {
+    color: #1069B3;
+    font-weight: bold;
+}
+.p-button.p-button-icon-only.p-button-rounded{
+    width:50px;
+    height: 50px;
+}
+.p-blockui{
+    height: 87%;
+    opacity: 0;
+}
+.p-inplace .p-inplace-display{
+    padding:0.2rem 0.5rem;
+}
+.p-fileupload .p-fileupload-content{
+    height:350px;
+    display: flex;
+    align-items: center;
+}
+.p-fileupload .p-fileupload-buttonbar{
+    width:540px;
+}
+.p-card .p-card-body{
+    margin-bottom:1rem;
+}
+.p-avatar.p-avatar-xl{
+    width: 9rem;
+    height: 9rem;
 }

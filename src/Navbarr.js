@@ -17,6 +17,8 @@ function Navbarr() {
   const [id, setId] = useState("");
   //會員名稱
   const [user, setUser] = useState("訪客");
+  //檢查token是否有過期
+  const [tokenCheck, setTokenCheck] = useState(true);
   const items = [
     {
       label: "首頁",
@@ -29,7 +31,7 @@ function Navbarr() {
       label: "會員中心",
       icon: "pi pi-fw pi-user",
       command: () => {
-        if (token) {
+        if (token && !tokenCheck) {
           navigate("/member/" + id);
         } else {
           navigate("/login");
@@ -52,7 +54,7 @@ function Navbarr() {
   const start = <img alt="logo" src={gymLogo} height="45"></img>;
   const end = (
     <div style={{ display: "flex", alignItems: "center" }}>
-      <label style={{ marginRight: "10px" }}>會員名稱：{user}</label>
+      <label style={{ marginRight: "10px" }}>登入身份：{user}</label>
       <Button
         label="登出"
         icon="pi pi-sign-out"
@@ -68,11 +70,18 @@ function Navbarr() {
   );
   useEffect(() => {
     if (token) {
-      setLogOutBtn("inline-flex");
       Axios.post("http://localhost:8081/api/token", { token: token }).then(
         (data) => {
-          setId(data.data.id);
-          setUser(data.data.user);
+          if (data.data == false) {
+            setLogOutBtn("none");
+            setUser("訪客");
+            setTokenCheck(true);
+          } else {
+            setTokenCheck(false);
+            setLogOutBtn("inline-flex");
+            setId(data.data.id);
+            setUser("會員" + data.data.user);
+          }
         }
       );
     } else {
