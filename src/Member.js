@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Login from "./Login";
 import Axios from "axios";
@@ -12,6 +12,7 @@ import { BlockUI } from "primereact/blockui";
 import { Button } from "primereact/button";
 import { FileUpload } from "primereact/fileupload";
 import { Avatar } from "primereact/avatar";
+import { Toast } from "primereact/toast";
 function Member() {
   //會員id
   const { id } = useParams();
@@ -34,7 +35,18 @@ function Member() {
   const [height, setHeight] = useState(0.0);
   //體重
   const [weight, setWeight] = useState(0.0);
+  //鎖屏
   const [blocked, setBlocked] = useState(true);
+  //編輯顯示
+  const [disabledEdit, setdisabledEdit] = useState(false);
+  //儲存顯示
+  const [disabledSave, setdisabledSave] = useState(true);
+  //通知
+  const toastTC = useRef(null);
+  //上傳圖片
+  const [file, setFile] = useState();
+  //儲存圖片
+  const [dataImg, setDataImg] = useState("user.svg.png");
   useEffect(() => {
     if (!isTwice) {
       if (token) {
@@ -44,6 +56,25 @@ function Member() {
               navigate("/login");
             } else {
               setUser(data.data.user);
+              console.log(id);
+              Axios.get(`http://localhost:8081/api/basicmember/${id}`).then(
+                (res) => {
+                  if (res.data.status === "failed") {
+                    toastTC.current.show({
+                      severity: "error",
+                      summary: "警告",
+                      detail: res.data.message,
+                      life: 3000,
+                    });
+                  } else {
+                    setDataImg(res.data.result[0].image);
+                    setAge(res.data.result[0].age);
+                    setGender(res.data.result[0].gender);
+                    setHeight(res.data.result[0].height);
+                    setWeight(res.data.result[0].weight);
+                  }
+                }
+              );
             }
           }
         );
@@ -55,6 +86,58 @@ function Member() {
     }
   }, []);
 
+  function handleFile(e) {
+    setFile(e.target.files[0]);
+    console.log(e.target.files[0]);
+    var fileData = e.target.files[0]; // 檔案資訊
+    var fileName = fileData.name; // 檔案名稱
+    var fileType = fileData.type; // 檔案類型
+    var fileSize = Math.floor(fileData.size * 0.001); // 檔案大小轉成kb
+    var fileTime = fileData.lastModifiedDate;
+
+    console.log(fileData); // 用開發人員工具可看到資料
+
+    document.getElementById("file_name").innerText = fileName;
+    document.getElementById("file_type").innerText = fileType;
+    document.getElementById("file_size").innerText = fileSize + "kb";
+    document.getElementById("file_time").innerText = fileTime;
+    document.getElementById("file_thumbnail").src =
+      URL.createObjectURL(fileData);
+  }
+  function handleUpload() {
+    const formData = new FormData();
+    formData.append("image", file);
+    Axios.post(`http://localhost:8081/api/upload/${id}`, formData).then(
+      (res) => {
+        if (res.data.status === "success") {
+          toastTC.current.show({
+            severity: "success",
+            summary: "通知",
+            detail: res.data.message,
+            life: 3000,
+          });
+        } else {
+          toastTC.current.show({
+            severity: "error",
+            summary: "警告",
+            detail: res.data.message,
+            life: 3000,
+          });
+        }
+      }
+    );
+  }
+  function EditSave(n) {
+    if (n == 0) {
+      setBlocked(false);
+      setdisabledEdit(true);
+      setdisabledSave(false);
+    } else {
+      setBlocked(true);
+      setdisabledEdit(false);
+      setdisabledSave(true);
+    }
+  }
   return (
     <div className="memberBasicCard">
       <div style={{ textAlign: "center" }}>
@@ -82,28 +165,53 @@ function Member() {
             <BlockUI blocked={blocked}>
               <div className="flex-auto">
                 <Avatar
-                  image="https://www.gravatar.com/avatar/05dfd4b41340d09cae045235eb0893c3?d=mp"
+                  image={require("./server/public/image/" + dataImg)}
                   className="mr-2"
                   size="xlarge"
                   shape="circle"
                 />
               </div>
-
+              <Toast ref={toastTC} position="top-center" />
               {/* 大頭貼照 */}
-              <div style={{ position: "absolute", right: "0px", top: "0px" }}>
+              <div style={{ position: "absolute", right: "50px", top: "0px" }}>
                 <div>
-                  <FileUpload
-                    name="demo[]"
-                    url={"/api/upload"}
-                    multiple
-                    accept="image/*"
-                    maxFileSize={1000000}
-                    emptyTemplate={
-                      <p className="m-0">
-                        Drag and drop files to here to upload.
-                      </p>
-                    }
-                  />
+                  {/* <div>
+                    <input type="file" name="file" onChange={handleFile} />
+                    <button onClick={handleUpload}>Upload</button>
+                  </div> */}
+                  <div>
+                    <input
+                      id="customFileInput"
+                      type="file"
+                      accept="image/*"
+                      className="upload_input"
+                      onChange={handleFile}
+                    />
+                    <label for="customFileInput" className="upload_label">
+                      <span>➕選擇檔案...</span>
+                    </label>
+                    <button onClick={handleUpload} className="upload_label">
+                      上傳檔案
+                    </button>
+                  </div>
+                  <div className="info-box">
+                    <p>
+                      檔名：<span id="file_name"></span>
+                    </p>
+                    <p>
+                      類型：<span id="file_type"></span>
+                    </p>
+                    <p>
+                      大小：<span id="file_size"></span>
+                    </p>
+                    <p>
+                      最後更新時間：<span id="file_time"></span>
+                    </p>
+                    <p>縮圖：</p>
+                    <figure style={{ display: "block", margin: 0 }}>
+                      <img id="file_thumbnail" style={{ width: "20%" }} />
+                    </figure>
+                  </div>
                 </div>
               </div>
               {/* 會員名稱 */}
@@ -161,6 +269,7 @@ function Member() {
                   onChange={(e) => setGender(e.value)}
                   checked={gender === "man"}
                   style={{ marginRight: "5px" }}
+                  required
                 />
                 <label className="ml-2" style={{ marginRight: "15px" }}>
                   男
@@ -170,6 +279,7 @@ function Member() {
                   value="woman"
                   onChange={(e) => setGender(e.value)}
                   checked={gender === "woman"}
+                  required
                 />
                 <label className="ml-2">女</label>
               </div>
@@ -267,10 +377,15 @@ function Member() {
               <div style={{ textAlign: "center", marginTop: "60px" }}>
                 <Button
                   label="編輯"
-                  onClick={() => setBlocked(false)}
+                  onClick={() => EditSave(0)}
                   style={{ marginRight: "5px" }}
+                  disabled={disabledEdit}
                 ></Button>
-                <Button label="儲存" onClick={() => setBlocked(true)}></Button>
+                <Button
+                  label="儲存"
+                  onClick={() => EditSave(1)}
+                  disabled={disabledSave}
+                ></Button>
               </div>
             </BlockUI>
           </div>

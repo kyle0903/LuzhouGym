@@ -5,6 +5,8 @@ const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
+const multer = require("multer");
+const path = require("path");
 const app = express();
 const PORT = 8081;
 const db = mysql.createConnection({
@@ -203,6 +205,51 @@ app.post("/api/token", (req, res) => {
       res.send(decoded); // 將解密後token回傳
     }
   });
+});
+//上傳檔案至本地端
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, "/public/image"));
+  },
+  filename: (req, file, cb) => {
+    cb(
+      null,
+      file.fieldname + "_" + Date.now() + path.extname(file.originalname)
+    );
+  },
+});
+const upload = multer({
+  storage: storage,
+});
+app.post("/api/upload/:id", upload.single("image"), (req, res) => {
+  const image = req.file.filename;
+  const id = req.params.id;
+  db.query(
+    "UPDATE member_basic_info SET image=? WHERE user_id=?",
+    [image, id],
+    (err, result) => {
+      if (err) {
+        res.send({ status: "failed", message: "上傳失敗" });
+      } else {
+        res.send({ status: "success", message: "上傳成功" });
+      }
+    }
+  );
+});
+//取得會員檔案
+app.get("/api/basicmember/:id", (req, res) => {
+  const id = req.params.id;
+  db.query(
+    "SELECT * FROM member_basic_info WHERE user_id=?",
+    id,
+    (err, result) => {
+      if (err) {
+        res.send({ status: "failed", message: "取得會員檔案失敗" });
+      } else {
+        res.send({ status: "success", result: result });
+      }
+    }
+  );
 });
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);

@@ -30,7 +30,6 @@ function Login() {
   const toastTC = useRef(null);
   //因為React 18的useEffect會跑兩次，這個變數是為了判斷是否第二次執行useEffect
   var isTwice = false;
-
   //每次更新會跑一次的動作
   useEffect(() => {
     if (validcode && !isTwice) {
