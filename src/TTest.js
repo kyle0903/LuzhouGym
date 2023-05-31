@@ -1,19 +1,14 @@
 import React from "react";
 import { FileUpload } from "primereact/fileupload";
+import { InputText } from "primereact/inputtext";
 function TTest() {
   return (
     <div>
       <div>
-        <FileUpload
-          name="demo[]"
-          url={"/api/upload"}
-          multiple
-          accept="image/*"
-          maxFileSize={1000000}
-          emptyTemplate={
-            <p className="m-0">Drag and drop files to here to upload.</p>
-          }
-        />
+        <label htmlFor="spacekey" className="font-bold block mb-2">
+          Block Space
+        </label>
+        <InputText id="spacekey" className="w-full" keyfilter={/[^ ]/} />
       </div>
     </div>
   );

@@ -38,17 +38,14 @@ function Navbarr() {
         }
       },
     },
+
     {
-      label: "健身論壇",
-      icon: "pi pi-fw pi-comment",
+      label: "課程專區",
+      icon: "pi pi-fw pi-book",
     },
     {
       label: "公司產品",
       icon: "pi pi-fw pi-truck",
-    },
-    {
-      label: "課程專區",
-      icon: "pi pi-fw pi-book",
     },
   ];
   const start = <img alt="logo" src={gymLogo} height="45"></img>;

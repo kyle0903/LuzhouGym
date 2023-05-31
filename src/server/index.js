@@ -251,6 +251,63 @@ app.get("/api/basicmember/:id", (req, res) => {
     }
   );
 });
+//更新會員檔案
+app.post("/api/update/:id", (req, res) => {
+  const id = req.params.id;
+  const gender = req.body.gender;
+  const age = req.body.age;
+  const height = req.body.height;
+  const weight = req.body.weight;
+  db.query(
+    "UPDATE member_basic_info SET age=?, gender=?, height=?, weight=? WHERE user_id=?",
+    [age, gender, height, weight, id],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(result);
+        res.send({ status: "success", message: "儲存完成" });
+      }
+    }
+  );
+});
+//更改密碼
+app.post("/api/changepwd", (req, res) => {
+  const id = req.body.id;
+  console.log(id);
+  const oldPwd = req.body.oldPwd;
+  const newPwd = req.body.newPwd;
+  db.query("SELECT * FROM member_info WHERE id=?", [id], (err, result) => {
+    if (err) {
+      console.log(err);
+    } else {
+      const psRes = bcrypt.compareSync(oldPwd, result[0].password);
+      if (!psRes) {
+        res.send({ status: "failed", message: "舊密碼輸入錯誤" });
+      } else {
+        let hashPassword = bcrypt.hashSync(newPwd, 10);
+        db.query(
+          "UPDATE member_info SET password=? WHERE id=?",
+          [hashPassword, id],
+          (err, result2) => {
+            if (err) {
+              console.log(err);
+              res.send({
+                status: "failed",
+                message: "更改密碼過程中出了點問題",
+              });
+            } else {
+              res.send({
+                status: "success",
+                message: "密碼更改完成，請重新登入，3秒後將登出...",
+              });
+            }
+          }
+        );
+      }
+    }
+  });
+});
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);
 });

@@ -81,8 +81,8 @@
     margin-bottom:1rem;
 }
 .p-avatar.p-avatar-xl{
-    width: 10rem;
-    height: 10rem;
+    width: 10.5rem;
+    height: 10.5rem;
 }
 .upload_cover {
     position: relative;
@@ -119,6 +119,7 @@
     border-radius: 20px;
     cursor: pointer;
     transition: box-shadow .4s ease;
+    ;
 }
 
 .upload_label:hover {

@@ -100,7 +100,7 @@ function Login() {
   function CommitData(btn_footer) {
     //註冊會員
     if (btn_footer === "註冊") {
-      if (user === "" || pwd === "" || mail === "") {
+      if (user === "" || pwd === "" || pwdCheck === "" || mail === "") {
         //這邊可以再多加點條件，不然輸入空格也會過
         toastTC.current.show({
           severity: "error",

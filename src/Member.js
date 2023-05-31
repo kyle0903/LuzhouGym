@@ -13,6 +13,7 @@ import { Button } from "primereact/button";
 import { FileUpload } from "primereact/fileupload";
 import { Avatar } from "primereact/avatar";
 import { Toast } from "primereact/toast";
+import ChangePwd from "./ChangePwd";
 function Member() {
   //會員id
   const { id } = useParams();
@@ -116,6 +117,11 @@ function Member() {
             detail: res.data.message,
             life: 3000,
           });
+          document.getElementById("file_name").innerText = "";
+          document.getElementById("file_type").innerText = "";
+          document.getElementById("file_size").innerText = "";
+          document.getElementById("file_time").innerText = "";
+          document.getElementById("file_thumbnail").src = "";
         } else {
           toastTC.current.show({
             severity: "error",
@@ -136,6 +142,21 @@ function Member() {
       setBlocked(true);
       setdisabledEdit(false);
       setdisabledSave(true);
+      Axios.post(`http://localhost:8081/api/update/${id}`, {
+        gender: gender,
+        age: age,
+        height: height,
+        weight: weight,
+      }).then((res) => {
+        if (res.data.status === "success") {
+          toastTC.current.show({
+            severity: "success",
+            summary: "通知",
+            detail: res.data.message,
+            life: 3000,
+          });
+        }
+      });
     }
   }
   return (
@@ -187,11 +208,11 @@ function Member() {
                       className="upload_input"
                       onChange={handleFile}
                     />
-                    <label for="customFileInput" className="upload_label">
+                    <label htmlFor="customFileInput" className="upload_label">
                       <span>➕選擇檔案...</span>
                     </label>
                     <button onClick={handleUpload} className="upload_label">
-                      上傳檔案
+                      <span>上傳檔案</span>
                     </button>
                   </div>
                   <div className="info-box">
@@ -230,21 +251,17 @@ function Member() {
                 >
                   會員名稱：
                 </label>
-                <Inplace closable>
-                  <InplaceDisplay>{user || "Click to Edit"}</InplaceDisplay>
-                  <InplaceContent>
-                    <InputText
-                      keyfilter={/[^s]/}
-                      value={user}
-                      onChange={(e) => setUser(e.value)}
-                      style={{
-                        fontWeight: "bold",
-                        color: "black",
-                        opacity: 1,
-                      }}
-                    />
-                  </InplaceContent>
-                </Inplace>
+
+                <InputText
+                  value={user}
+                  onChange={(e) => setUser(e.target.value)}
+                  style={{
+                    fontWeight: "bold",
+                    color: "black",
+                    background: "rgba(0, 0, 0, 0.1)",
+                  }}
+                  disabled
+                />
               </div>
               {/* 性別 */}
               <div
@@ -266,7 +283,7 @@ function Member() {
                 <RadioButton
                   name="gender"
                   value="man"
-                  onChange={(e) => setGender(e.value)}
+                  onChange={(e) => setGender(e.target.value)}
                   checked={gender === "man"}
                   style={{ marginRight: "5px" }}
                   required
@@ -277,7 +294,7 @@ function Member() {
                 <RadioButton
                   name="gender"
                   value="woman"
-                  onChange={(e) => setGender(e.value)}
+                  onChange={(e) => setGender(e.target.value)}
                   checked={gender === "woman"}
                   required
                 />
@@ -331,9 +348,9 @@ function Member() {
                   <InplaceDisplay>{height || "Click to Edit"}</InplaceDisplay>
                   <InplaceContent>
                     <InputText
-                      keyfilter={/[^s]/}
+                      keyfilter="num"
                       value={height}
-                      onChange={(e) => setHeight(e.value)}
+                      onChange={(e) => setHeight(e.target.value)}
                       style={{
                         fontWeight: "bold",
                         color: "black",
@@ -364,7 +381,7 @@ function Member() {
                     <InputText
                       keyfilter="num"
                       value={weight}
-                      onChange={(e) => setWeight(e.value)}
+                      onChange={(e) => setWeight(e.target.value)}
                       style={{
                         fontWeight: "bold",
                         color: "black",
@@ -390,7 +407,7 @@ function Member() {
             </BlockUI>
           </div>
         ) : (
-          <div></div>
+          <ChangePwd id={id} setToken={setToken} />
         )}
       </Card>
     </div>
