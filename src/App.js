@@ -10,6 +10,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./Login";
 import Member from "./Member";
 import TTest from "./TTest";
+import Course from "./Course";
 const App = () => {
   return (
     <div>
@@ -20,6 +21,7 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/login/:validcode" element={<Login />} />
           <Route path="/member/:id" element={<Member />} />
+          <Route path="/course" element={<Course />} />
           <Route path="/test" element={<TTest />} />
         </Routes>
       </BrowserRouter>

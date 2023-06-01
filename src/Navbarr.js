@@ -42,6 +42,9 @@ function Navbarr() {
     {
       label: "課程專區",
       icon: "pi pi-fw pi-book",
+      command: () => {
+        navigate("/course");
+      },
     },
     {
       label: "公司產品",
