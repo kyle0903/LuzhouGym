@@ -28,18 +28,6 @@ function Navbarr() {
       },
     },
     {
-      label: "會員中心",
-      icon: "pi pi-fw pi-user",
-      command: () => {
-        if (token && !tokenCheck) {
-          navigate("/member/" + id);
-        } else {
-          navigate("/login");
-        }
-      },
-    },
-
-    {
       label: "課程專區",
       icon: "pi pi-fw pi-book",
       command: () => {
@@ -49,6 +37,17 @@ function Navbarr() {
     {
       label: "公司產品",
       icon: "pi pi-fw pi-truck",
+    },
+    {
+      label: "會員中心",
+      icon: "pi pi-fw pi-user",
+      command: () => {
+        if (token && !tokenCheck) {
+          navigate("/member/" + id);
+        } else {
+          navigate("/login");
+        }
+      },
     },
   ];
   const start = <img alt="logo" src={gymLogo} height="45"></img>;
