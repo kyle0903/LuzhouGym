@@ -308,7 +308,47 @@ app.post("/api/changepwd", (req, res) => {
     }
   });
 });
-
+//取得產品資料
+app.get("/api/product", (req, res) => {
+  db.query("SELECT * FROM product_info", (err, result) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.send(result);
+    }
+  });
+});
+//加入到購物車
+app.post("/api/addcart", (req, res) => {
+  const userId = req.body.userId;
+  const productId = req.body.productId;
+  const productName = req.body.productName;
+  const price = req.body.price;
+  const productNum = req.body.productNum;
+  const total = price * productNum;
+  db.query(
+    "INSERT INTO order_info(user_id,product_id,product_name,product_price,quantity,total) VALUES(?,?,?,?,?,?)",
+    [userId, productId, productName, price, productNum, total],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(result);
+      }
+    }
+  );
+});
+//取得訂單資料
+app.get("/api/order/:id", (req, res) => {
+  const id = req.params.id;
+  db.query("SELECT * FROM order_info WHERE user_id=?", id, (err, result) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.send(result);
+    }
+  });
+});
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);
 });

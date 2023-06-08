@@ -5,6 +5,7 @@ import gymLogo from "./pic/gymLogo.png";
 import { useNavigate } from "react-router-dom";
 import { Button } from "primereact/button";
 import Axios from "axios";
+import { Badge } from "primereact/badge";
 
 function Navbarr() {
   //跳轉頁面
@@ -19,6 +20,10 @@ function Navbarr() {
   const [user, setUser] = useState("訪客");
   //檢查token是否有過期
   const [tokenCheck, setTokenCheck] = useState(true);
+  //購物車數量
+  const [shopNum, setShopNum] = useState(0);
+  //判斷useEffect是否執行兩次
+  var isTwice = false;
   const items = [
     {
       label: "首頁",
@@ -37,6 +42,9 @@ function Navbarr() {
     {
       label: "公司產品",
       icon: "pi pi-fw pi-truck",
+      command: () => {
+        navigate("/product");
+      },
     },
     {
       label: "會員中心",
@@ -54,11 +62,25 @@ function Navbarr() {
   const end = (
     <div style={{ display: "flex", alignItems: "center" }}>
       <label style={{ marginRight: "10px" }}>登入身份：{user}</label>
+      <i
+        className="pi pi-shopping-cart p-overlay-badge"
+        style={{ cursor: "pointer", display: logOutBtn }}
+        onClick={() => {}}
+      >
+        <Badge value={shopNum}></Badge>
+      </i>
       <Button
         label="登出"
         icon="pi pi-sign-out"
         iconPos="right"
-        style={{ display: logOutBtn }}
+        style={{
+          display: logOutBtn,
+          backgroundColor: "transparent",
+          color: "red",
+          border: "transparent",
+          marginLeft: "20px",
+          fontWeight: "bold",
+        }}
         onClick={() => {
           localStorage.clear();
           setToken(null);
@@ -68,24 +90,32 @@ function Navbarr() {
     </div>
   );
   useEffect(() => {
-    if (token) {
-      Axios.post("http://localhost:8081/api/token", { token: token }).then(
-        (data) => {
-          if (data.data == false) {
-            setLogOutBtn("none");
-            setUser("訪客");
-            setTokenCheck(true);
-          } else {
-            setTokenCheck(false);
-            setLogOutBtn("inline-flex");
-            setId(data.data.id);
-            setUser("會員" + data.data.user);
+    if (!isTwice) {
+      if (token) {
+        Axios.post("http://localhost:8081/api/token", { token: token }).then(
+          (data) => {
+            if (data.data == false) {
+              setLogOutBtn("none");
+              setUser("訪客");
+              setTokenCheck(true);
+            } else {
+              setTokenCheck(false);
+              setLogOutBtn("inline-flex");
+              setId(data.data.id);
+              setUser("會員" + data.data.user);
+              Axios.get(`http://localhost:8081/api/order/${data.data.id}`).then(
+                (res) => {
+                  setShopNum(res.data.length);
+                }
+              );
+            }
           }
-        }
-      );
-    } else {
-      setLogOutBtn("none");
-      setUser("訪客");
+        );
+      } else {
+        setLogOutBtn("none");
+        setUser("訪客");
+      }
+      isTwice = true;
     }
   }, []);
   return (

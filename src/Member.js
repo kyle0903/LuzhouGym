@@ -96,8 +96,6 @@ function Member() {
     var fileSize = Math.floor(fileData.size * 0.001); // 檔案大小轉成kb
     var fileTime = fileData.lastModifiedDate;
 
-    console.log(fileData); // 用開發人員工具可看到資料
-
     document.getElementById("file_name").innerText = fileName;
     document.getElementById("file_type").innerText = fileType;
     document.getElementById("file_size").innerText = fileSize + "kb";

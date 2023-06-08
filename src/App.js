@@ -11,6 +11,7 @@ import Login from "./Login";
 import Member from "./Member";
 import TTest from "./TTest";
 import Course from "./Course";
+import Product from "./Product";
 const App = () => {
   return (
     <div>
@@ -22,6 +23,7 @@ const App = () => {
           <Route path="/login/:validcode" element={<Login />} />
           <Route path="/member/:id" element={<Member />} />
           <Route path="/course" element={<Course />} />
+          <Route path="product" element={<Product />} />
           <Route path="/test" element={<TTest />} />
         </Routes>
       </BrowserRouter>

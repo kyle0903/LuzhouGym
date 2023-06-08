@@ -183,3 +183,23 @@
     font-weight: 500;
     line-height: 1.5;
   }
+
+.product{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+ 
+}
+.product_pic_info{
+    height: 250px;
+    width: 300px;
+    margin-right: 25px;
+    border-radius: 15%;
+}
+.btn_shop{
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+}
