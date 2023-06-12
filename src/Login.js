@@ -8,6 +8,7 @@ import { Toast } from "primereact/toast";
 import Axios from "axios";
 import moment from "moment";
 import { useParams } from "react-router-dom";
+import Navbarr from "./Navbarr";
 function Login() {
   //密碼的值
   const [pwd, setPwd] = useState("");
@@ -30,6 +31,7 @@ function Login() {
   const toastTC = useRef(null);
   //因為React 18的useEffect會跑兩次，這個變數是為了判斷是否第二次執行useEffect
   var isTwice = false;
+  const [shopNum, setShopNum] = useState(0);
   //每次更新會跑一次的動作
   useEffect(() => {
     if (validcode && !isTwice) {
@@ -180,83 +182,96 @@ function Login() {
     }
   }
   return (
-    <div className="memberLoginCard">
-      <div style={{ textAlign: "center" }}>
-        <label
-          style={{ fontSize: "40px", fontWeight: "bold", marginBottom: "50px" }}
-        >
-          會員中心
-        </label>
-      </div>
-
-      <TabMenu
-        model={items}
-        activeIndex={activeIndex}
-        onTabChange={(e) => setActiveIndex(e.index)}
-        style={{ textAlign: "center" }}
-      />
-      <Card footer={footer}>
-        {/* 一般會員登入畫面 */}
-        <div>
-          <div className="p-inputgroup flex-1" style={{ marginBottom: "25px" }}>
-            <span className="p-inputgroup-addon">
-              <i className="pi pi-user"></i>
-            </span>
-            <InputText
-              value={user}
-              placeholder="輸入帳號"
-              onChange={(e) => {
-                setUser(e.target.value);
-              }}
-              keyfilter={/[^s]/}
-            />
-          </div>
-          <div className="p-inputgroup flex-1">
-            <span className="p-inputgroup-addon">
-              <i className="pi pi-lock"></i>
-            </span>
-            <Password
-              value={pwd}
-              onChange={(e) => setPwd(e.target.value)}
-              placeholder="輸入密碼"
-              toggleMask
-              keyfilter={/[^s]/}
-            />
-          </div>
+    <div>
+      <Navbarr shopNum={shopNum} setShopNum={setShopNum} />
+      <div className="memberLoginCard">
+        <div style={{ textAlign: "center" }}>
+          <label
+            style={{
+              fontSize: "40px",
+              fontWeight: "bold",
+              marginBottom: "50px",
+            }}
+          >
+            會員中心
+          </label>
         </div>
-        {/* 會員註冊畫面 */}
-        {activeIndex == 1 ? (
-          <div style={{ marginTop: "25px" }}>
+
+        <TabMenu
+          model={items}
+          activeIndex={activeIndex}
+          onTabChange={(e) => setActiveIndex(e.index)}
+          style={{ textAlign: "center" }}
+        />
+        <Card footer={footer}>
+          {/* 一般會員登入畫面 */}
+          <div>
+            <div
+              className="p-inputgroup flex-1"
+              style={{ marginBottom: "25px" }}
+            >
+              <span className="p-inputgroup-addon">
+                <i className="pi pi-user"></i>
+              </span>
+              <InputText
+                value={user}
+                placeholder="輸入帳號"
+                onChange={(e) => {
+                  setUser(e.target.value);
+                }}
+                keyfilter={/[^s]/}
+              />
+            </div>
             <div className="p-inputgroup flex-1">
               <span className="p-inputgroup-addon">
                 <i className="pi pi-lock"></i>
               </span>
               <Password
-                value={pwdCheck}
-                onChange={(e) => setPwdCheck(e.target.value)}
-                placeholder="再次確認密碼"
+                value={pwd}
+                onChange={(e) => setPwd(e.target.value)}
+                placeholder="輸入密碼"
                 toggleMask
                 keyfilter={/[^s]/}
               />
             </div>
-            <div className="p-inputgroup flex-1" style={{ marginTop: "25px" }}>
-              <span className="p-inputgroup-addon">
-                <i className="pi pi-envelope"></i>
-              </span>
-              <InputText
-                placeholder="輸入電子郵件"
-                value={mail}
-                onChange={(e) => {
-                  setMail(e.target.value);
-                }}
-                keyfilter={/[^s]/}
-              />
-            </div>
           </div>
-        ) : (
-          <div></div>
-        )}
-      </Card>
+          {/* 會員註冊畫面 */}
+          {activeIndex == 1 ? (
+            <div style={{ marginTop: "25px" }}>
+              <div className="p-inputgroup flex-1">
+                <span className="p-inputgroup-addon">
+                  <i className="pi pi-lock"></i>
+                </span>
+                <Password
+                  value={pwdCheck}
+                  onChange={(e) => setPwdCheck(e.target.value)}
+                  placeholder="再次確認密碼"
+                  toggleMask
+                  keyfilter={/[^s]/}
+                />
+              </div>
+              <div
+                className="p-inputgroup flex-1"
+                style={{ marginTop: "25px" }}
+              >
+                <span className="p-inputgroup-addon">
+                  <i className="pi pi-envelope"></i>
+                </span>
+                <InputText
+                  placeholder="輸入電子郵件"
+                  value={mail}
+                  onChange={(e) => {
+                    setMail(e.target.value);
+                  }}
+                  keyfilter={/[^s]/}
+                />
+              </div>
+            </div>
+          ) : (
+            <div></div>
+          )}
+        </Card>
+      </div>
     </div>
   );
 }

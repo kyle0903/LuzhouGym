@@ -1,4 +1,4 @@
-import React from "react";
+import { React, useState } from "react";
 import CoursePic from "./CoursePic";
 import course1 from "./pic/course1.jpeg";
 import course1_2 from "./pic/course1_2.jpeg";
@@ -6,9 +6,13 @@ import course2 from "./pic/course2.jpeg";
 import course2_1 from "./pic/course2_1.jpeg";
 import course3 from "./pic/course3.jpeg";
 import course3_1 from "./pic/course3_1.jpeg";
+import Navbarr from "./Navbarr";
 function Course() {
+  //購物車數量
+  const [shopNum, setShopNum] = useState(0);
   return (
     <div>
+      <Navbarr shopNum={shopNum} setShopNum={setShopNum} />
       <CoursePic />
       {/* 飛輪課程 */}
       <div className="title">飛輪課程</div>

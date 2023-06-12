@@ -326,14 +326,15 @@ app.post("/api/addcart", (req, res) => {
   const price = req.body.price;
   const productNum = req.body.productNum;
   const total = price * productNum;
+  const productPic = req.body.productPic;
   db.query(
-    "INSERT INTO order_info(user_id,product_id,product_name,product_price,quantity,total) VALUES(?,?,?,?,?,?)",
-    [userId, productId, productName, price, productNum, total],
+    "INSERT INTO order_info(user_id,product_id,product_name,product_price,quantity,total,product_pic) VALUES(?,?,?,?,?,?,?)",
+    [userId, productId, productName, price, productNum, total, productPic],
     (err, result) => {
       if (err) {
         console.log(err);
       } else {
-        console.log(result);
+        res.send({ status: "success" });
       }
     }
   );
@@ -341,13 +342,17 @@ app.post("/api/addcart", (req, res) => {
 //取得訂單資料
 app.get("/api/order/:id", (req, res) => {
   const id = req.params.id;
-  db.query("SELECT * FROM order_info WHERE user_id=?", id, (err, result) => {
-    if (err) {
-      console.log(err);
-    } else {
-      res.send(result);
+  db.query(
+    "SELECT * FROM order_info inner join member_info on order_info.user_id = member_info.id where order_info.user_id = ?;",
+    id,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send(result);
+      }
     }
-  });
+  );
 });
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);

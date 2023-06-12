@@ -203,3 +203,10 @@
     align-items: center;
 
 }
+.order_card{
+    width: 75%;
+    position: absolute;
+    left: 12%;
+    top: 12%;
+
+}

@@ -7,7 +7,7 @@ import { Button } from "primereact/button";
 import Axios from "axios";
 import { Badge } from "primereact/badge";
 
-function Navbarr() {
+function Navbarr({ shopNum, setShopNum }) {
   //跳轉頁面
   const navigate = useNavigate();
   //token
@@ -20,8 +20,7 @@ function Navbarr() {
   const [user, setUser] = useState("訪客");
   //檢查token是否有過期
   const [tokenCheck, setTokenCheck] = useState(true);
-  //購物車數量
-  const [shopNum, setShopNum] = useState(0);
+
   //判斷useEffect是否執行兩次
   var isTwice = false;
   const items = [
@@ -65,7 +64,9 @@ function Navbarr() {
       <i
         className="pi pi-shopping-cart p-overlay-badge"
         style={{ cursor: "pointer", display: logOutBtn }}
-        onClick={() => {}}
+        onClick={() => {
+          navigate("/order/" + id);
+        }}
       >
         <Badge value={shopNum}></Badge>
       </i>
@@ -91,6 +92,7 @@ function Navbarr() {
   );
   useEffect(() => {
     if (!isTwice) {
+      console.log(shopNum);
       if (token) {
         Axios.post("http://localhost:8081/api/token", { token: token }).then(
           (data) => {

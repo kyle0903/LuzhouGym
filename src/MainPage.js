@@ -1,4 +1,4 @@
-import React from "react";
+import { React, useEffect, useState } from "react";
 import { Fieldset } from "primereact/fieldset";
 import { Card } from "primereact/card";
 import NavPic from "./NavPic";
@@ -7,6 +7,7 @@ import company from "./pic/company.jpeg";
 import coach1 from "./pic/coach1.png";
 import coach2 from "./pic/coach2.png";
 import coach3 from "./pic/coach3.png";
+import Navbarr from "./Navbarr";
 
 function MainPage() {
   const legendTemplate_comp = (
@@ -27,9 +28,11 @@ function MainPage() {
   const company_pic = (
     <img src={company} style={{ margin: "10px", textAlign: "center" }} />
   );
-
+  //購物車數量
+  const [shopNum, setShopNum] = useState(0);
   return (
     <div>
+      <Navbarr shopNum={shopNum} setShopNum={setShopNum} />
       <NavPic />
       <Fieldset legend={legendTemplate_comp}>
         <div style={{ display: "flex", alignItems: "center" }}>
