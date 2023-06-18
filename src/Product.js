@@ -38,16 +38,15 @@ function Product() {
         Axios.post("http://localhost:8081/api/token", { token: token }).then(
           (data) => {
             if (data.data == false) {
-              console.log("連線過期");
+              setUserId(0);
             } else {
               setUserId(data.data.id);
             }
           }
         );
       }
-
-      isTwice = true;
     }
+    isTwice = true;
   }, []);
   const getSeverity = (product) => {
     switch (product.inventoryStatus) {
@@ -76,7 +75,14 @@ function Product() {
     return formattedData;
   };
   const addCart = (productId, productName, price, productPic) => {
-    if (selectedNum !== 0) {
+    if (userId == 0) {
+      toastTC.current.show({
+        severity: "error",
+        summary: "警告",
+        detail: "請至會員中心登入會員帳號",
+        life: 3000,
+      });
+    } else if (selectedNum !== 0) {
       Axios.post("http://localhost:8081/api/addcart", {
         userId: userId,
         productId: productId,
@@ -99,7 +105,12 @@ function Product() {
         }
       });
     } else {
-      console.log("no");
+      toastTC.current.show({
+        severity: "warn",
+        summary: "提醒",
+        detail: "請先選擇商品數量",
+        life: 3000,
+      });
     }
   };
 

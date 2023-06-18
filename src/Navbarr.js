@@ -92,7 +92,6 @@ function Navbarr({ shopNum, setShopNum }) {
   );
   useEffect(() => {
     if (!isTwice) {
-      console.log(shopNum);
       if (token) {
         Axios.post("http://localhost:8081/api/token", { token: token }).then(
           (data) => {

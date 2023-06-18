@@ -18,14 +18,21 @@ function Order() {
     if (!twice) {
       Axios.get(`http://localhost:8081/api/order/${id}`).then((res) => {
         setOrders(res.data);
+        console.log(res.data);
       });
       twice = true;
     }
   }, []);
+  function test() {
+    Axios.get(`http://localhost:8081/api/linepay/${id}`).then((res) => {
+      console.log(res.data);
+    });
+  }
   return (
     <div>
       <Navbarr shopNum={shopNum} setShopNum={setShopNum} />
       <div>
+        <h3 style={{ textAlign: "center", marginTop: "30px" }}>訂單資料</h3>
         {orders.map((order) => {
           return (
             <div>
@@ -62,19 +69,39 @@ function Order() {
                       訂購數量：{order.quantity} 件<br />
                     </p>
                     <p style={{ marginTop: "50px" }}>
-                      訂單總金額：{order.total} 元
+                      該筆訂單金額：
+                      <span style={{ color: "red" }}>{order.total}元</span>
                     </p>
                   </div>
-                  <div style={{ width: "500px", textAlign: "right" }}>
-                    <button style={{ height: "100%" }}>刪除</button>
+                  <div
+                    style={{
+                      position: "absolute",
+                      right: "20px",
+                      height: "250px",
+                    }}
+                  >
+                    <Button
+                      label="刪除"
+                      style={{ height: "100%" }}
+                      severity="danger"
+                    />
                   </div>
                 </div>
-
-                <hr />
               </Card>
             </div>
           );
         })}
+        <div
+          style={{
+            position: "relative",
+            textAlign: "right",
+            marginRight: "170px",
+            marginTop: "50px",
+            marginBottom: "10px",
+          }}
+        >
+          <Button label="結帳去" onClick={test} />
+        </div>
       </div>
     </div>
   );

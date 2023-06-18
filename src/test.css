@@ -205,8 +205,8 @@
 }
 .order_card{
     width: 75%;
-    position: absolute;
-    left: 12%;
-    top: 12%;
+    position: relative;
+    left:13%;
+    top:30px
 
 }

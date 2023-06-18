@@ -1,5 +1,7 @@
 const mysql = require("mysql");
 const express = require("express");
+const currentPath = process.cwd();
+require("dotenv").config({ path: currentPath + "/src/server/.env" });
 const cors = require("cors");
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
@@ -7,14 +9,31 @@ const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
+const { HmacSHA256 } = require("crypto-js");
+const Base64 = require("crypto-js/enc-base64");
+const axios = require("axios");
 const app = express();
 const PORT = 8081;
+const {
+  host,
+  user,
+  password,
+  database,
+  port,
+  LINEPAY_CHANNEL_ID,
+  LINEPAY_VERSION,
+  LINEPAY_SITE,
+  LINEPAY_CHANNEL_SECRET_KEY,
+  LINEPAY_RETURN_HOST,
+  LINEPAY_RETURN_CONFIRM_URL,
+  LINEPAY_RETURN_CANCEL_URL,
+} = process.env;
 const db = mysql.createConnection({
-  host: "127.0.0.1",
-  user: "root",
-  password: "junkai0903",
-  database: "luzhougym",
-  port: 3306,
+  host: host,
+  user: user,
+  password: password,
+  database: database,
+  port: port,
 });
 app.use(cors());
 app.use(express.json());
@@ -350,6 +369,77 @@ app.get("/api/order/:id", (req, res) => {
         console.log(err);
       } else {
         res.send(result);
+      }
+    }
+  );
+});
+app.get("/api/linepay/:id", (req, res) => {
+  const id = req.params.id;
+  let order = {};
+  let newPackage = [];
+  let total = 0;
+  db.query(
+    "SELECT * FROM order_info WHERE user_id=?",
+    id,
+    async (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        for (let i = 0; i < result.length; i++) {
+          newPackage.push({
+            id: result[i].cart_id.toString(),
+            amount: result[i].total,
+            products: [
+              {
+                name: result[i].product_name,
+                quantity: result[i].quantity,
+                price: result[i].product_price,
+              },
+            ],
+          });
+          total += result[i].total;
+        }
+        order = {
+          amount: total,
+          currency: "TWD",
+          orderId: parseInt(new Date().getTime() / 1000),
+          packages: newPackage,
+          redirectUrls: {
+            confirmUrl: `${LINEPAY_RETURN_HOST}${LINEPAY_RETURN_CONFIRM_URL}`,
+            cancelUrl: `${LINEPAY_RETURN_HOST}${LINEPAY_RETURN_CANCEL_URL}`,
+          },
+        };
+        //因為是async的關係，所以要加上try catch
+        try {
+          let linepayBody = order;
+          const uri = "/payments/request";
+          const nonce = parseInt(new Date().getTime() / 1000);
+          console.log(JSON.stringify(linepayBody));
+          const linepay_str = `${LINEPAY_CHANNEL_SECRET_KEY}/${LINEPAY_VERSION}${uri}${JSON.stringify(
+            linepayBody
+          )}${nonce}`;
+          //將以上資訊加密成簽章
+          const signature = Base64.stringify(
+            HmacSHA256(linepay_str, LINEPAY_CHANNEL_SECRET_KEY)
+          );
+          //要確認訂單身份的資料
+          const headers = {
+            "X-LINE-ChannelId": LINEPAY_CHANNEL_ID,
+            "Content-Type": "application/json",
+            "X-LINE-Authorization-Nonce": nonce,
+            "X-LINE-Authorization": signature,
+          };
+          //linepay的api地址
+          const linepay_url = `${LINEPAY_SITE}/${LINEPAY_VERSION}${uri}`;
+          //提交linepay request，需要用await確保提交後才做接下來的動作
+          const linepayRes = await axios.post(linepay_url, linepayBody, {
+            headers,
+          });
+          console.log(linepayRes);
+        } catch (error) {
+          //錯誤的回饋
+          console.log(error);
+        }
       }
     }
   );
