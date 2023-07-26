@@ -12,6 +12,7 @@ import TTest from "./TTest";
 import Course from "./Course";
 import Product from "./Product";
 import Order from "./Order";
+import Pay from "./Pay";
 const App = () => {
   return (
     <div>
@@ -24,6 +25,7 @@ const App = () => {
           <Route path="/course" element={<Course />} />
           <Route path="/product" element={<Product />} />
           <Route path="/order/:id" element={<Order />} />
+          <Route path="/linepay/confirm" element={<Pay />} />
           <Route path="/test" element={<TTest />} />
         </Routes>
       </BrowserRouter>

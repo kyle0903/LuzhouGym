@@ -373,6 +373,8 @@ app.get("/api/order/:id", (req, res) => {
     }
   );
 });
+//發送linepay請求
+var amounts = {};
 app.get("/api/linepay/:id", (req, res) => {
   const id = req.params.id;
   let order = {};
@@ -409,40 +411,78 @@ app.get("/api/linepay/:id", (req, res) => {
             cancelUrl: `${LINEPAY_RETURN_HOST}${LINEPAY_RETURN_CANCEL_URL}`,
           },
         };
+        //為了linepay的confirm用，怕同時有不同orderid用全域變數會有誤
+        amounts[order.orderId] = order.amount;
         //因為是async的關係，所以要加上try catch
         try {
           let linepayBody = order;
           const uri = "/payments/request";
-          const nonce = parseInt(new Date().getTime() / 1000);
-          console.log(JSON.stringify(linepayBody));
-          const linepay_str = `${LINEPAY_CHANNEL_SECRET_KEY}/${LINEPAY_VERSION}${uri}${JSON.stringify(
-            linepayBody
-          )}${nonce}`;
-          //將以上資訊加密成簽章
-          const signature = Base64.stringify(
-            HmacSHA256(linepay_str, LINEPAY_CHANNEL_SECRET_KEY)
-          );
-          //要確認訂單身份的資料
-          const headers = {
-            "X-LINE-ChannelId": LINEPAY_CHANNEL_ID,
-            "Content-Type": "application/json",
-            "X-LINE-Authorization-Nonce": nonce,
-            "X-LINE-Authorization": signature,
-          };
+          const headers = CreateSignature(linepayBody, uri);
           //linepay的api地址
           const linepay_url = `${LINEPAY_SITE}/${LINEPAY_VERSION}${uri}`;
           //提交linepay request，需要用await確保提交後才做接下來的動作
           const linepayRes = await axios.post(linepay_url, linepayBody, {
             headers,
           });
-          console.log(linepayRes);
+          if (linepayRes.data.returnCode === "0000") {
+            res.send({
+              status: "success",
+              urls: linepayRes.data.info.paymentUrl.web,
+            });
+          }
         } catch (error) {
-          //錯誤的回饋
+          //錯誤的回饋ㄎ
           console.log(error);
         }
       }
     }
   );
+});
+//製作簽章資訊
+function CreateSignature(linepayBody, uri) {
+  const nonce = parseInt(new Date().getTime() / 1000);
+  const linepay_str = `${LINEPAY_CHANNEL_SECRET_KEY}/${LINEPAY_VERSION}${uri}${JSON.stringify(
+    linepayBody
+  )}${nonce}`;
+  //將以上資訊加密成簽章
+  const signature = Base64.stringify(
+    HmacSHA256(linepay_str, LINEPAY_CHANNEL_SECRET_KEY)
+  );
+  //要確認訂單身份的資料
+  const headers = {
+    "X-LINE-ChannelId": LINEPAY_CHANNEL_ID,
+    "Content-Type": "application/json",
+    "X-LINE-Authorization-Nonce": nonce,
+    "X-LINE-Authorization": signature,
+  };
+  return headers;
+}
+app.post("/api/linepay/confirm", async (req, res) => {
+  const transactionId = req.body.transactionId;
+  const orderId = req.body.orderId;
+  console.log(transactionId, orderId);
+  let orderid = orderId;
+  try {
+    const linepayBody = {
+      amount: amounts[orderid],
+      currency: "TWD",
+    };
+    console.log(linepayBody);
+    const uri = `/payments/${transactionId}/confirm`;
+    const headers = CreateSignature(linepayBody, uri);
+    const linepay_url = `${LINEPAY_SITE}/${LINEPAY_VERSION}${uri}`;
+    const linepayRes = await axios.post(linepay_url, linepayBody, {
+      headers,
+    });
+    if (linepayRes.data.returnCode === "0000") {
+      res.send({
+        status: "success",
+        message: "訂單已成功付款，三秒後將導向首頁",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
 });
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);

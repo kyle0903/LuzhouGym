@@ -25,7 +25,9 @@ function Order() {
   }, []);
   function test() {
     Axios.get(`http://localhost:8081/api/linepay/${id}`).then((res) => {
-      console.log(res.data);
+      if (res.data.status === "success") {
+        window.location.replace(res.data.urls);
+      }
     });
   }
   return (
