@@ -362,7 +362,7 @@ app.post("/api/addcart", (req, res) => {
 app.get("/api/order/:id", (req, res) => {
   const id = req.params.id;
   db.query(
-    "SELECT * FROM order_info inner join member_info on order_info.user_id = member_info.id where order_info.user_id = ?;",
+    "SELECT * FROM order_info inner join member_info on order_info.user_id = member_info.id where order_info.user_id = ? and order_info.pay=0",
     id,
     (err, result) => {
       if (err) {
@@ -373,15 +373,32 @@ app.get("/api/order/:id", (req, res) => {
     }
   );
 });
+//刪除訂單資料
+app.delete("/api/order/delete/:cart_id", (req, res) => {
+  const cart_id = req.params.cart_id;
+  db.query(
+    "delete from order_info where cart_id = ?",
+    cart_id,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send({ status: "success", message: "成功刪除一筆訂單" });
+      }
+    }
+  );
+});
 //發送linepay請求
 var amounts = {};
+var products = {};
+
 app.get("/api/linepay/:id", (req, res) => {
   const id = req.params.id;
   let order = {};
   let newPackage = [];
   let total = 0;
   db.query(
-    "SELECT * FROM order_info WHERE user_id=?",
+    "SELECT * FROM order_info WHERE user_id=? and pay = 0",
     id,
     async (err, result) => {
       if (err) {
@@ -411,8 +428,18 @@ app.get("/api/linepay/:id", (req, res) => {
             cancelUrl: `${LINEPAY_RETURN_HOST}${LINEPAY_RETURN_CANCEL_URL}`,
           },
         };
-        //為了linepay的confirm用，怕同時有不同orderid用全域變數會有誤
+        //為了linepay的confirm用，怕確認時的時間不一樣會有不同的orderid，若orderid用全域變數會有誤
         amounts[order.orderId] = order.amount;
+        //計算product的數量要減少多少，到時確認時要結算用的
+        let products_quantity = [];
+        for (let i = 0; i < order.packages.length; i++) {
+          products_quantity.push({
+            cart_id: order.packages[i].id,
+            name: order.packages[i].products[0].name,
+            quantity: order.packages[i].products[0].quantity,
+          });
+        }
+        products[order.orderId] = products_quantity;
         //因為是async的關係，所以要加上try catch
         try {
           let linepayBody = order;
@@ -431,7 +458,7 @@ app.get("/api/linepay/:id", (req, res) => {
             });
           }
         } catch (error) {
-          //錯誤的回饋ㄎ
+          //錯誤的回饋
           console.log(error);
         }
       }
@@ -457,6 +484,7 @@ function CreateSignature(linepayBody, uri) {
   };
   return headers;
 }
+//確認訂單
 app.post("/api/linepay/confirm", async (req, res) => {
   const transactionId = req.body.transactionId;
   const orderId = req.body.orderId;
@@ -475,6 +503,31 @@ app.post("/api/linepay/confirm", async (req, res) => {
       headers,
     });
     if (linepayRes.data.returnCode === "0000") {
+      console.log("成功確認，開始結算");
+      for (let i = 0; i < products[orderid].length; i++) {
+        console.log("計算第" + (i + 1) + "次");
+        db.query(
+          "update product_info set quantity = quantity - ? where name = ?",
+          [products[orderid][i].quantity, products[orderid][i].name],
+          (err, result) => {
+            if (err) {
+              console.log(err);
+            } else {
+              db.query(
+                "update order_info set pay= ? where cart_id = ?",
+                [1, products[orderid][i].cart_id],
+                (err, result2) => {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    console.log("成功刪除第" + (i + 1) + "單");
+                  }
+                }
+              );
+            }
+          }
+        );
+      }
       res.send({
         status: "success",
         message: "訂單已成功付款，三秒後將導向首頁",

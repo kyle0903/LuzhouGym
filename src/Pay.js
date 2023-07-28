@@ -23,11 +23,11 @@ function Pay() {
             detail: res.data.message,
             life: 3000,
           });
+          setTimeout(() => {
+            window.location.replace("http://localhost:3000/");
+          }, 1000);
         }
       });
-      // .then(() => {
-      //   window.location.replace("http://localhost:3000/");
-      // });
       isTwice = true;
     }
   }, []);
