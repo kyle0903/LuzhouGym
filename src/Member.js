@@ -70,7 +70,10 @@ function Member() {
                       life: 3000,
                     });
                   } else {
-                    setDataImg(res.data.result[0].image);
+                    console.log(res.data);
+                    if (res.data.result[0].image !== null) {
+                      setDataImg(res.data.result[0].image);
+                    }
                     setAge(res.data.result[0].age);
                     setGender(res.data.result[0].gender);
                     setHeight(res.data.result[0].height);

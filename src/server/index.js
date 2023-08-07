@@ -122,7 +122,7 @@ app.post("/api/sign", (req, res) => {
           }
         );
       } else {
-        res.send("該帳號已有人使用，或正在申請中，請重新輸入！");
+        res.send({ message: "該帳號已有人使用，或正在申請中，請重新輸入！" });
       }
     }
   });
@@ -265,7 +265,31 @@ app.get("/api/basicmember/:id", (req, res) => {
       if (err) {
         res.send({ status: "failed", message: "取得會員檔案失敗" });
       } else {
-        res.send({ status: "success", result: result });
+        if (result.length == 0) {
+          db.query(
+            "INSERT INTO member_basic_info(user_id) VALUES(?)",
+            id,
+            (err, result2) => {
+              if (err) {
+                console.log(err);
+              } else {
+                db.query(
+                  "SELECT * FROM member_basic_info WHERE user_id=?",
+                  id,
+                  (err, result3) => {
+                    if (err) {
+                      console.log(err);
+                    } else {
+                      res.send({ status: "success", result: result3 });
+                    }
+                  }
+                );
+              }
+            }
+          );
+        } else {
+          res.send({ status: "success", result: result });
+        }
       }
     }
   );
