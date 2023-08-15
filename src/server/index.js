@@ -95,9 +95,9 @@ app.post("/api/sign", (req, res) => {
                     });
                     console.log(err);
                   } else {
-                    //這邊可以select random_sign where user_id=id，原因是因為如果同個帳號已經有先寄過驗證碼，那就要刪除原本的再新增新的
+                    //這邊可以select random_table where user_id=id，原因是因為如果同個帳號已經有先寄過驗證碼，那就要刪除原本的再新增新的
                     db.query(
-                      "INSERT INTO random_sign(user_id,randomCode) VALUES(?,?)",
+                      "INSERT INTO random_table(user_id,randomCode) VALUES(?,?)",
                       [result2[0].id, rand],
                       (err, result2) => {
                         if (err) {
@@ -131,7 +131,7 @@ app.post("/api/sign", (req, res) => {
 app.get("/api/signEnable/:validcode", (req, res) => {
   const validcode = req.params.validcode;
   db.query(
-    "SELECT * FROM random_sign WHERE randomCode = ?",
+    "SELECT * FROM random_table WHERE randomCode = ?",
     validcode,
     (err, result) => {
       console.log(result, result.length);
@@ -147,7 +147,7 @@ app.get("/api/signEnable/:validcode", (req, res) => {
                 console.log(err);
               } else {
                 db.query(
-                  "DELETE FROM random_sign WHERE user_id=?",
+                  "DELETE FROM random_table WHERE user_id=?",
                   result[0].user_id,
                   (err, result3) => {
                     if (err) {
@@ -224,6 +224,152 @@ app.post("/api/token", (req, res) => {
       res.send(decoded); // 將解密後token回傳
     }
   });
+});
+//忘記密碼
+app.post("/api/forgetPwd", (req, res) => {
+  const forget_user = req.body.forget_user;
+  const forget_mail = req.body.forget_mail;
+  let rand = crypto.randomBytes(32).toString("hex");
+  function sendforgetmail(email, rand) {
+    var htmls =
+      "請點擊<a href='http://localhost:3000/login/forgetPwd/" +
+      rand +
+      "'>這個連結</a>重新設定您的蘆洲健身房會員密碼";
+    var mailer = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: "ha10966001@gmail.com", // Your email id
+        pass: "oihehrzckskoegas", // Your password
+      },
+    });
+    var mailOptions = {
+      from: "ha10966001@gmail.com",
+      to: email,
+      subject: "蘆洲健身房會員之忘記密碼認證",
+      html: htmls,
+    };
+
+    mailer.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log(0);
+      }
+    });
+  }
+  db.query(
+    "SELECT * FROM member_info where user = ? and email=?",
+    [forget_user, forget_mail],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else if (result.length == 1) {
+        console.log(result[0]);
+        db.query(
+          "DELETE FROM random_table WHERE user_id=?",
+          result[0].id,
+          (err, result2) => {
+            if (err) {
+              console.log(err);
+            } else {
+              db.query(
+                "INSERT INTO random_table(user_id,randomCode) VALUES(?,?)",
+                [result[0].id, rand],
+                (err, result1) => {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    sendforgetmail(forget_mail, rand);
+                    res.send({
+                      status: "success",
+                      message: "已將驗證碼寄至您的信箱，請麻煩前往認證",
+                    });
+                  }
+                }
+              );
+            }
+          }
+        );
+      } else {
+        res.send({
+          status: "failed",
+          message: "查無此帳戶或信箱，請檢查是否帳戶或信箱輸入錯誤",
+        });
+      }
+    }
+  );
+});
+//取得忘記密碼驗證碼
+app.get("/api/getCode/:forgetCode", (req, res) => {
+  const forgetCode = req.params.forgetCode;
+  db.query(
+    "SELECT * FROM random_table where randomCode=?",
+    forgetCode,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        if (result.length == 0) {
+          res.send({ status: "failed", message: "驗證碼無效或已過期" });
+        } else {
+          db.query(
+            "SELECT * FROM member_info WHERE id=?",
+            result[0].user_id,
+            (err, result1) => {
+              if (err) {
+                console.log(err);
+              } else {
+                res.send({
+                  status: "success",
+                  user: result1[0].user,
+                });
+              }
+            }
+          );
+        }
+      }
+    }
+  );
+});
+//忘記密碼更新
+app.post("/api/forgetPwdUpdate", (req, res) => {
+  const forget_user = req.body.forget_user;
+  let forget_pwd = req.body.forget_pwd;
+  db.query(
+    "SELECT * FROM member_info WHERE user=?",
+    forget_user,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        db.query(
+          "DELETE FROM random_table WHERE user_id=? ",
+          result[0].id,
+          (err, result1) => {
+            if (err) {
+              console.log(err);
+            } else {
+              forget_pwd = bcrypt.hashSync(forget_pwd, 10);
+              db.query(
+                "UPDATE member_info SET password=? WHERE user=?",
+                [forget_pwd, forget_user],
+                (err, result) => {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    res.send({
+                      status: "success",
+                      message: "密碼更改成功，三秒後進入登入頁面",
+                    });
+                  }
+                }
+              );
+            }
+          }
+        );
+      }
+    }
+  );
 });
 //上傳檔案至本地端
 const storage = multer.diskStorage({
@@ -428,6 +574,7 @@ app.get("/api/linepay/:id", (req, res) => {
       if (err) {
         console.log(err);
       } else {
+        //取得user的訂單
         for (let i = 0; i < result.length; i++) {
           newPackage.push({
             id: result[i].cart_id.toString(),
