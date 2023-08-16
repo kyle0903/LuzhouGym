@@ -708,6 +708,17 @@ app.post("/api/linepay/confirm", async (req, res) => {
     console.log(error);
   }
 });
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);
 });
+function gracefulshutdown() {
+  console.log("Shutting down");
+  server.close(() => {
+    console.log("HTTP server closed.");
+
+    // When server has stopped accepting connections
+    // exit the process with exit status 0
+    process.exit(0);
+  });
+}
+process.on("SIGTERM", gracefulshutdown);
