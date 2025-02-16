@@ -19,8 +19,10 @@
     - 忘記密碼功能
     - 會員個人檔案與文章修改
     - 會員歷史文章與按讚內容查詢
+      
 - 瀏覽健身房課程與位置
     - 使用者可以查看課程內容、教練介紹以及健身房的地點資訊
+      
 - 商品購買
     - 支援購物車功能，輕鬆選購健身相關商品
     - **Line Pay 線上付款**：提供便利且安全的付款方式
@@ -38,7 +40,7 @@
 1. Clone 專案至本地端
     
     ```bash
-    git clone [https://github.com/kyle0903/LuzhouGym.git](https://github.com/your-username/LuzhouGym.git)
+    git clone https://github.com/kyle0903/LuzhouGym.git
     cd LuzhouGym
     
     ```
