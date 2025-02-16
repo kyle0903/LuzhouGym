@@ -143,7 +143,6 @@
 - 前端： `http://localhost:3000`
     
     ```bash
-    cd server
     npm run start
     ```
     
