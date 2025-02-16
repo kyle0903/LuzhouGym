@@ -57,7 +57,7 @@
     ```
     
 
-### 2. 模型系統
+### 3. 模型系統
 
 - CommonJS(若要使用ES6標準，在package.json加上type:”module”
 - 以下為模型系統差異：
@@ -70,12 +70,12 @@
     | 執行時機 | 動態載入 (運行時解析) | 靜態載入 (編譯時解析) |
     | 適用環境 | Node.js (預設 CommonJS) | ES6+ (現代前端, Node.js 需 `type: "module"` 或 `.mjs` 副檔名) |
 
-### 3. 資料庫設定
+### 4. 資料庫設定
 
 - 更新 `server/config/config.js` 中的資料庫連線設定
 - 確保 MySQL 正常運行，以及能夠與資料庫連線
 
-### 4. 資料庫結構
+### 5. 資料庫結構
 
 - **member_info**
     
@@ -138,7 +138,7 @@
     - **product_pic** (VARCHAR) - 商品圖片路徑
     - **pay** (TINYINT) - 支付狀態 (0: 未支付, 1: 已支付)
 
-### 5. 伺服器啟動
+### 6. 伺服器啟動
 
 - 前端： `http://localhost:3000`
     
