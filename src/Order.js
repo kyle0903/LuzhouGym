@@ -5,6 +5,7 @@ import Axios from "axios";
 import { Card } from "primereact/card";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
+import { API_ENDPOINTS } from './config/api';
 function Order() {
   //會員id
   const { id } = useParams();
@@ -26,7 +27,7 @@ function Order() {
     }
   }, []);
   function Load() {
-    Axios.get(`http://localhost:8081/api/order/${id}`).then((res) => {
+    Axios.get(`${API_ENDPOINTS.ORDER}/${id}`).then((res) => {
       setOrders(res.data);
       let shopNums = res.data.length; //因為同步問題，如果直接setShopNum會比其他同步時間慢，無法獲得想要的shopNum值
       setShopNum(shopNums);
@@ -41,14 +42,14 @@ function Order() {
   }
 
   function CheckOut() {
-    Axios.get(`http://localhost:8081/api/linepay/${id}`).then((res) => {
+    Axios.get(`${API_ENDPOINTS.LINEPAY}/${id}`).then((res) => {
       if (res.data.status === "success") {
         window.location.replace(res.data.urls);
       }
     });
   }
   function DeleteOrder(cart_id) {
-    Axios.delete(`http://localhost:8081/api/order/delete/${cart_id}`).then(
+    Axios.delete(`${API_ENDPOINTS.ORDER}/delete/${cart_id}`).then(
       (res) => {
         if (res.data.status === "success") {
           toastTC.current.show({

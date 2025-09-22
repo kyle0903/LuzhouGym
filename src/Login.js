@@ -10,6 +10,7 @@ import Axios from "axios";
 import moment from "moment";
 import { useParams } from "react-router-dom";
 import Navbarr from "./Navbarr";
+import { API_ENDPOINTS } from './config/api';
 function Login() {
   //密碼的值
   const [pwd, setPwd] = useState("");
@@ -79,7 +80,7 @@ function Login() {
   useEffect(() => {
     if (!isTwice) {
       if (validcode) {
-        Axios.get(`http://localhost:8081/api/signEnable/${validcode}`).then(
+        Axios.get(`${API_ENDPOINTS.SIGN_ENABLE}/${validcode}`).then(
           (data) => {
             if (data.data.status === "success") {
               toastTC.current.show({
@@ -99,10 +100,10 @@ function Login() {
           }
         );
         setTimeout(() => {
-          window.location.replace("http://localhost:3000/login");
+          window.location.replace(`${API_ENDPOINTS.HOME}/login`);
         }, 3000);
       } else if (forgetCode) {
-        Axios.get(`http://localhost:8081/api/getCode/${forgetCode}`).then(
+        Axios.get(`${API_ENDPOINTS.GETCODE}/${forgetCode}`).then(
           (res) => {
             if (res.data.status === "success") {
               setForget_user(res.data.user);
@@ -133,7 +134,7 @@ function Login() {
   //忘記密碼寄驗證碼
   function forgetPwd() {
     if (forget_user !== "" && forget_mail !== "") {
-      Axios.post("http://localhost:8081/api/forgetPwd", {
+      Axios.post(`${API_ENDPOINTS.FORGETPWD}`, {
         forget_user: forget_user,
         forget_mail: forget_mail,
       }).then((res) => {
@@ -168,7 +169,7 @@ function Login() {
   function updatePwd() {
     if (forget_pwd !== "" && forget_pwdCheck !== "") {
       if (forget_pwd == forget_pwdCheck) {
-        Axios.post("http://localhost:8081/api/forgetPwdUpdate", {
+        Axios.post(`${API_ENDPOINTS.FORGETPWD_UPDATE}`, {
           forget_user: forget_user,
           forget_pwd: forget_pwd,
         }).then((res) => {
@@ -180,7 +181,7 @@ function Login() {
               life: 3000,
             });
             setTimeout(() => {
-              window.location.replace("http://localhost:3000/login");
+              window.location.replace(`${API_ENDPOINTS.HOME}/login`);
             }, 3000);
           } else {
             toastTC.current.show({
@@ -349,7 +350,7 @@ function Login() {
           life: 3000,
         });
       } else {
-        Axios.post("http://localhost:8081/api/sign", {
+        Axios.post(`${API_ENDPOINTS.SIGN}`, {
           user: user,
           pwd: pwd,
           mail: mail,
@@ -383,7 +384,7 @@ function Login() {
           life: 3000,
         });
       } else {
-        Axios.post("http://localhost:8081/api/login", {
+        Axios.post(`${API_ENDPOINTS.LOGIN}`, {
           user: user,
           pwd: pwd,
         }).then((data) => {
@@ -396,7 +397,7 @@ function Login() {
             });
             window.localStorage.setItem("token", data.data.token);
             setTimeout(() => {
-              const path = "http://localhost:3000/member/" + data.data.id;
+              const path = `${API_ENDPOINTS.HOME}/member/${data.data.id}`;
               window.location.replace(path);
               //navigate(path, { replace: true });
             }, 3000);

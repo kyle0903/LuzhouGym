@@ -1,4 +1,6 @@
 import React from "react";
+import Axios from "axios";
+import { API_ENDPOINTS } from './config/api';
 
 function Sign() {
   //註冊會員
@@ -8,7 +10,7 @@ function Sign() {
     } else if (pwd !== pwdCheck) {
       console.log("密碼不同步");
     } else {
-      Axios.post("http://localhost:8081/api/sign", {
+      Axios.post(API_ENDPOINTS.SIGN, {
         user: user,
         pwd: pwd,
         mail: mail,

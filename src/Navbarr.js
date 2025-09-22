@@ -1,11 +1,11 @@
 import { React, useEffect, useState } from "react";
 import { Menubar } from "primereact/menubar";
-import { InputText } from "primereact/inputtext";
 import gymLogo from "./pic/gymLogo.png";
 import { useNavigate } from "react-router-dom";
 import { Button } from "primereact/button";
 import Axios from "axios";
 import { Badge } from "primereact/badge";
+import { API_ENDPOINTS } from './config/api';
 
 function Navbarr({ shopNum, setShopNum }) {
   //跳轉頁面
@@ -23,6 +23,8 @@ function Navbarr({ shopNum, setShopNum }) {
 
   //判斷useEffect是否執行兩次
   var isTwice = false;
+
+
   const items = [
     {
       label: "首頁",
@@ -93,7 +95,7 @@ function Navbarr({ shopNum, setShopNum }) {
   useEffect(() => {
     if (!isTwice) {
       if (token) {
-        Axios.post("http://localhost:8081/api/token", { token: token }).then(
+        Axios.post(API_ENDPOINTS.TOKEN, { token: token }).then(
           (data) => {
             if (data.data == false) {
               setLogOutBtn("none");
@@ -104,7 +106,7 @@ function Navbarr({ shopNum, setShopNum }) {
               setLogOutBtn("inline-flex");
               setId(data.data.id);
               setUser("會員" + data.data.user);
-              Axios.get(`http://localhost:8081/api/order/${data.data.id}`).then(
+              Axios.get(`${API_ENDPOINTS.ORDER}/${data.data.id}`).then(
                 (res) => {
                   setShopNum(res.data.length);
                 }

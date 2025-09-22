@@ -2,6 +2,7 @@ import Axios from "axios";
 import React, { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { Toast } from "primereact/toast";
+import { API_ENDPOINTS } from './config/api';
 function Pay() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -12,7 +13,7 @@ function Pay() {
   let isTwice = false;
   useEffect(() => {
     if (!isTwice) {
-      Axios.post("http://localhost:8081/api/linepay/confirm", {
+      Axios.post(`${API_ENDPOINTS.LINEPAY}/confirm`, {
         transactionId: transactionId,
         orderId: orderId,
       }).then((res) => {
@@ -24,7 +25,7 @@ function Pay() {
             life: 3000,
           });
           setTimeout(() => {
-            window.location.replace("http://localhost:3000/");
+            window.location.replace(`${API_ENDPOINTS.HOME}/`);
           }, 1000);
         }
       });

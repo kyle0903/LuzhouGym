@@ -8,6 +8,7 @@ import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
 import Navbarr from "./Navbarr";
+import { API_ENDPOINTS } from './config/api';
 function Product() {
   //產品資料
   const [products, setProducts] = useState([]);
@@ -31,11 +32,11 @@ function Product() {
   const [shopNum, setShopNum] = useState(0);
   useEffect(() => {
     if (!isTwice) {
-      Axios.get("http://localhost:8081/api/product").then((res) => {
+      Axios.get(API_ENDPOINTS.PRODUCT).then((res) => {
         setProducts(res.data.slice(0, 4));
       });
       if (token) {
-        Axios.post("http://localhost:8081/api/token", { token: token }).then(
+        Axios.post(API_ENDPOINTS.TOKEN, { token: token }).then(
           (data) => {
             if (data.data == false) {
               setUserId(0);
@@ -83,7 +84,7 @@ function Product() {
         life: 3000,
       });
     } else if (selectedNum !== 0) {
-      Axios.post("http://localhost:8081/api/addcart", {
+      Axios.post(API_ENDPOINTS.ADDCART, {
         userId: userId,
         productId: productId,
         productName: productName,
@@ -92,7 +93,7 @@ function Product() {
         productPic: productPic,
       }).then((res) => {
         if (res.data.status === "success") {
-          Axios.get(`http://localhost:8081/api/order/${userId}`).then((res) => {
+          Axios.get(`${API_ENDPOINTS.ORDER}/${userId}`).then((res) => {
             setShopNum(res.data.length);
           });
           handleDialogToggle(productId);

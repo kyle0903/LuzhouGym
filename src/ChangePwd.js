@@ -3,6 +3,7 @@ import { Password } from "primereact/password";
 import { Toast } from "primereact/toast";
 import { Button } from "primereact/button";
 import Axios from "axios";
+import { API_ENDPOINTS } from './config/api';
 function ChangePwd({ id, setToken }) {
   const [newPwd, setNewPwd] = useState("");
   const [oldPwd, setOldPwd] = useState("");
@@ -32,7 +33,7 @@ function ChangePwd({ id, setToken }) {
         life: 3000,
       });
     } else {
-      Axios.post("http://localhost:8081/api/changepwd", {
+      Axios.post(API_ENDPOINTS.CHANGEPWD, {
         id: id,
         oldPwd: oldPwd,
         newPwd: newPwd,

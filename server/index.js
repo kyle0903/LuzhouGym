@@ -1,25 +1,23 @@
 const mysql = require("mysql");
 const express = require("express");
-const currentPath = process.cwd();
-require("dotenv").config({ path: currentPath + "/src/server/.env" });
 const cors = require("cors");
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
-const multer = require("multer");
 const path = require("path");
 const { HmacSHA256 } = require("crypto-js");
 const Base64 = require("crypto-js/enc-base64");
 const axios = require("axios");
 const app = express();
-const PORT = 8081;
+const PORTS = 8081;
 const {
-  host,
-  user,
-  password,
-  database,
-  port,
+  HOST,
+  USER,
+  PWD,
+  DATABASE,
+  PORT,
+  URL,
   LINEPAY_CHANNEL_ID,
   LINEPAY_VERSION,
   LINEPAY_SITE,
@@ -29,14 +27,17 @@ const {
   LINEPAY_RETURN_CANCEL_URL,
 } = process.env;
 const db = mysql.createConnection({
-  host: host,
-  user: user,
-  password: password,
-  database: database,
-  port: port,
+  host: HOST,
+  user: USER,
+  password: PWD,
+  database: DATABASE,
+  port: PORT,
 });
 app.use(cors());
 app.use(express.json());
+
+// 服務 React 靜態檔案
+app.use(express.static(path.join(__dirname, 'build')));
 //註冊會員
 app.post("/api/sign", (req, res) => {
   const user = req.body.user;
@@ -47,7 +48,7 @@ app.post("/api/sign", (req, res) => {
   let rand = crypto.randomBytes(32).toString("hex");
   function sendmail(email, rand) {
     var htmls =
-      "請點擊<a href='http://localhost:3000/login/" +
+      "請點擊<a href='" + URL + "/login/" +
       rand +
       "'>這個連結</a>認證您的蘆洲健身房會員帳號";
     var mailer = nodemailer.createTransport({
@@ -232,7 +233,7 @@ app.post("/api/forgetPwd", (req, res) => {
   let rand = crypto.randomBytes(32).toString("hex");
   function sendforgetmail(email, rand) {
     var htmls =
-      "請點擊<a href='http://localhost:3000/login/forgetPwd/" +
+      "請點擊<a href='" + URL + "/login/forgetPwd/" +
       rand +
       "'>這個連結</a>重新設定您的蘆洲健身房會員密碼";
     var mailer = nodemailer.createTransport({
@@ -371,36 +372,7 @@ app.post("/api/forgetPwdUpdate", (req, res) => {
     }
   );
 });
-//上傳檔案至本地端
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "/public/image"));
-  },
-  filename: (req, file, cb) => {
-    cb(
-      null,
-      file.fieldname + "_" + Date.now() + path.extname(file.originalname)
-    );
-  },
-});
-const upload = multer({
-  storage: storage,
-});
-app.post("/api/upload/:id", upload.single("image"), (req, res) => {
-  const image = req.file.filename;
-  const id = req.params.id;
-  db.query(
-    "UPDATE member_basic_info SET image=? WHERE user_id=?",
-    [image, id],
-    (err, result) => {
-      if (err) {
-        res.send({ status: "failed", message: "上傳失敗" });
-      } else {
-        res.send({ status: "success", message: "上傳成功" });
-      }
-    }
-  );
-});
+// 檔案上傳功能已移除
 //取得會員檔案
 app.get("/api/basicmember/:id", (req, res) => {
   const id = req.params.id;
@@ -708,8 +680,13 @@ app.post("/api/linepay/confirm", async (req, res) => {
     console.log(error);
   }
 });
-const server = app.listen(PORT, () => {
-  console.log(`Server is running on ${PORT}`);
+// 處理 React Router（所有非 API 路由都返回 index.html）
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
+const server = app.listen(PORTS, () => {
+  console.log(`Server is running on ${PORTS}`);
 });
 function gracefulshutdown() {
   console.log("Shutting down");
