@@ -1,13 +1,13 @@
 import { React, useEffect, useState } from "react";
 import { Fieldset } from "primereact/fieldset";
 import { Card } from "primereact/card";
-import NavPic from "./NavPic";
+import HomeCarousel from "../components/Carousel/HomeCarousel";
 import { Button } from "primereact/button";
-import company from "./pic/company.jpeg";
-import coach1 from "./pic/coach1.png";
-import coach2 from "./pic/coach2.png";
-import coach3 from "./pic/coach3.png";
-import Navbarr from "./Navbarr";
+import company from "../assets/images/company.jpeg";
+import coach1 from "../assets/images/coach1.png";
+import coach2 from "../assets/images/coach2.png";
+import coach3 from "../assets/images/coach3.png";
+import Navbar from "../components/Navbar";
 
 function MainPage() {
   const legendTemplate_comp = (
@@ -32,8 +32,8 @@ function MainPage() {
   const [shopNum, setShopNum] = useState(0);
   return (
     <div>
-      <Navbarr shopNum={shopNum} setShopNum={setShopNum} />
-      <NavPic />
+      <Navbar shopNum={shopNum} setShopNum={setShopNum} />
+      <HomeCarousel />
       <Fieldset legend={legendTemplate_comp}>
         <div style={{ display: "flex", alignItems: "center" }}>
           <div>

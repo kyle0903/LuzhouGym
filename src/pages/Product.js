@@ -7,7 +7,7 @@ import Axios from "axios";
 import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
-import Navbarr from "./Navbarr";
+import Navbar from "../components/Navbar";
 import { API_ENDPOINTS } from './config/api';
 function Product() {
   //產品資料
@@ -117,7 +117,7 @@ function Product() {
 
   return (
     <div>
-      <Navbarr shopNum={shopNum} setShopNum={setShopNum} />
+      <Navbar shopNum={shopNum} setShopNum={setShopNum} />
       <Toast ref={toastTC} position="top-center" />
       <div style={{ display: "flex" }}>
         {products.map((product) => {

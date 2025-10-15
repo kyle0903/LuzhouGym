@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
-import Navbarr from "./Navbarr";
+import Navbar from "../components/Navbar";
 import Axios from "axios";
 import { Card } from "primereact/card";
 import { Button } from "primereact/button";
@@ -67,7 +67,7 @@ function Order() {
   return (
     <div>
       <Toast ref={toastTC} position="top-center" />
-      <Navbarr shopNum={shopNum} setShopNum={setShopNum} />
+      <Navbar shopNum={shopNum} setShopNum={setShopNum} />
       {shopNum !== 0 ? (
         <div>
           <h3 style={{ textAlign: "center", marginTop: "30px" }}>訂單資料</h3>

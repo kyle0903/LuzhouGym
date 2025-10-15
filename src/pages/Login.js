@@ -9,7 +9,7 @@ import { Dialog } from "primereact/dialog";
 import Axios from "axios";
 import moment from "moment";
 import { useParams } from "react-router-dom";
-import Navbarr from "./Navbarr";
+import Navbar from "../components/Navbar";
 import { API_ENDPOINTS } from './config/api';
 function Login() {
   //密碼的值
@@ -415,7 +415,7 @@ function Login() {
   }
   return (
     <div>
-      <Navbarr shopNum={shopNum} setShopNum={setShopNum} />
+      <Navbar shopNum={shopNum} setShopNum={setShopNum} />
       <div className="memberLoginCard">
         <div style={{ textAlign: "center" }}>
           <label

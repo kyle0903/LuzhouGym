@@ -1,19 +1,19 @@
 import { React, useState } from "react";
-import CoursePic from "./CoursePic";
-import course1 from "./pic/course1.jpeg";
-import course1_2 from "./pic/course1_2.jpeg";
-import course2 from "./pic/course2.jpeg";
-import course2_1 from "./pic/course2_1.jpeg";
-import course3 from "./pic/course3.jpeg";
-import course3_1 from "./pic/course3_1.jpeg";
-import Navbarr from "./Navbarr";
+import CourseCarousel from "../components/Carousel/CourseCarousel";
+import course1 from "../assets/images/course1.jpeg";
+import course1_2 from "../assets/images/course1_2.jpeg";
+import course2 from "../assets/images/course2.jpeg";
+import course2_1 from "../assets/images/course2_1.jpeg";
+import course3 from "../assets/images/course3.jpeg";
+import course3_1 from "../assets/images/course3_1.jpeg";
+import Navbar from "../components/Navbar";
 function Course() {
   //購物車數量
   const [shopNum, setShopNum] = useState(0);
   return (
     <div>
-      <Navbarr shopNum={shopNum} setShopNum={setShopNum} />
-      <CoursePic />
+      <Navbar shopNum={shopNum} setShopNum={setShopNum} />
+      <CourseCarousel />
       {/* 飛輪課程 */}
       <div className="title">飛輪課程</div>
       <div style={{ display: "flex" }}>

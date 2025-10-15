@@ -1,9 +1,9 @@
-import React from "react";
-import coursePic1 from "./pic/coursePic1.jpeg";
-import coursePic2 from "./pic/coursePic2.jpeg";
-import coursePic3 from "./pic/coursePic3.jpeg";
 import Carousel from "react-bootstrap/Carousel";
-function CoursePic() {
+import coursePic1 from "../../assets/images/coursePic1.jpeg";
+import coursePic2 from "../../assets/images/coursePic2.jpeg";
+import coursePic3 from "../../assets/images/coursePic3.jpeg";
+
+function CourseCarousel() {
   return (
     <Carousel>
       <Carousel.Item>
@@ -34,4 +34,4 @@ function CoursePic() {
   );
 }
 
-export default CoursePic;
+export default CourseCarousel;

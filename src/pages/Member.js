@@ -10,10 +10,9 @@ import { RadioButton } from "primereact/radiobutton";
 import { Slider } from "primereact/slider";
 import { BlockUI } from "primereact/blockui";
 import { Button } from "primereact/button";
-import { Avatar } from "primereact/avatar";
 import { Toast } from "primereact/toast";
 import ChangePwd from "./ChangePwd";
-import Navbarr from "./Navbarr";
+import Navbar from "../components/Navbar";
 function Member() {
   //會員id
   const { id } = useParams();
@@ -84,8 +83,6 @@ function Member() {
     }
   }, []);
 
-  // 檔案處理功能已移除
-  // 檔案上傳功能已移除
   function EditSave(n) {
     if (n == 0) {
       setBlocked(false);
@@ -114,7 +111,7 @@ function Member() {
   }
   return (
     <div>
-      <Navbarr shopNum={shopNum} setShopNum={setShopNum} />
+      <Navbar shopNum={shopNum} setShopNum={setShopNum} />
       <div className="memberBasicCard">
         <div style={{ textAlign: "center" }}>
           <label

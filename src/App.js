@@ -1,17 +1,16 @@
-import { React } from "react";
 import "primereact/resources/themes/saga-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "primeicons/primeicons.css";
-import MainPage from "./MainPage";
-import "./test.css";
+import "./styles/custom.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Login from "./Login";
-import Member from "./Member";
-import Course from "./Course";
-import Product from "./Product";
-import Order from "./Order";
-import Pay from "./Pay";
+import MainPage from "./pages/MainPage";
+import Login from "./pages/Login";
+import Member from "./pages/Member";
+import Course from "./pages/Course";
+import Product from "./pages/Product";
+import Order from "./pages/Order";
+import Pay from "./pages/Pay";
 const App = () => {
   return (
     <div>
