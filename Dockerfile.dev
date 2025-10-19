@@ -1,0 +1,26 @@
+# ================================
+# 開發環境 Dockerfile (僅後端)
+# ================================
+
+FROM node:18-alpine
+
+WORKDIR /app/server
+
+# 複製後端 package 檔案
+COPY server/package*.json ./
+
+# 安裝所有依賴（包含開發依賴）
+RUN npm install
+
+# 複製後端源碼
+COPY server ./
+
+# 安裝 nodemon 用於熱重載
+RUN npm install -g nodemon
+
+# 暴露端口
+ENV PORT=8081
+EXPOSE 8081
+
+# 使用 nodemon 啟動，自動重載
+CMD ["nodemon", "server.js"]

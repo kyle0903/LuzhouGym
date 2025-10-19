@@ -35,9 +35,6 @@ RUN npm ci --only=production
 # ============ 階段 3: 最終映像 ============
 FROM node:18-alpine
 
-# 安裝 supervisord
-RUN apk add --no-cache supervisor
-
 WORKDIR /app
 
 # 複製後端代碼
@@ -47,12 +44,6 @@ COPY server ./server
 # 複製前端建置檔案到後端 build 目錄
 COPY --from=frontend-builder /app/build ./server/build
 
-# 複製 supervisord 配置
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-# 建立日誌目錄
-RUN mkdir -p /var/log/supervisor
-
 # 暴露端口 (預設 8081,但 Cloud Run 會使用 PORT 環境變數)
 ENV PORT=8081
 EXPOSE 8081
@@ -61,5 +52,5 @@ EXPOSE 8081
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:${PORT}/api/product', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# 使用 supervisord 啟動
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# 直接啟動 Node.js 後端服務
+CMD ["node", "/app/server/server.js"]
