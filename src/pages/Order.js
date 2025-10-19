@@ -5,7 +5,7 @@ import Axios from "axios";
 import { Card } from "primereact/card";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
-import { API_ENDPOINTS } from './config/api';
+import { API_ENDPOINTS } from '../services/api';
 function Order() {
   //會員id
   const { id } = useParams();
@@ -19,12 +19,13 @@ function Order() {
   const [cartString, setCartString] = useState("");
   //通知
   const toastTC = useRef(null);
-  var twice = false;
+  const twiceRef = useRef(false);
   useEffect(() => {
-    if (!twice) {
+    if (!twiceRef.current) {
       Load();
-      twice = true;
+      twiceRef.current = true;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   function Load() {
     Axios.get(`${API_ENDPOINTS.ORDER}/${id}`).then((res) => {
@@ -78,6 +79,7 @@ function Order() {
                   <div style={{ display: "flex" }}>
                     <img
                       src={`https://primefaces.org/cdn/primereact/images/product/${order.product_pic}`}
+                      alt={order.product_name}
                       style={{
                         marginTop: "10px",
                         marginBottom: "10px",

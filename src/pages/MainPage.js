@@ -1,12 +1,12 @@
-import { React, useEffect, useState } from "react";
+import { React, useState } from "react";
 import { Fieldset } from "primereact/fieldset";
 import { Card } from "primereact/card";
 import HomeCarousel from "../components/Carousel/HomeCarousel";
 import { Button } from "primereact/button";
-import company from "../assets/images/company.jpeg";
-import coach1 from "../assets/images/coach1.png";
-import coach2 from "../assets/images/coach2.png";
-import coach3 from "../assets/images/coach3.png";
+import company from "../assets/images/pic/company.jpeg";
+import coach1 from "../assets/images/pic/coach1.png";
+import coach2 from "../assets/images/pic/coach2.png";
+import coach3 from "../assets/images/pic/coach3.png";
 import Navbar from "../components/Navbar";
 
 function MainPage() {
@@ -26,7 +26,7 @@ function MainPage() {
   const coach2_pic = <img alt="Card" src={coach2} />;
   const coach3_pic = <img alt="Card" src={coach3} />;
   const company_pic = (
-    <img src={company} style={{ margin: "10px", textAlign: "center" }} />
+    <img src={company} alt="蘆洲健身房" style={{ margin: "10px", textAlign: "center" }} />
   );
   //購物車數量
   const [shopNum, setShopNum] = useState(0);
@@ -38,6 +38,7 @@ function MainPage() {
         <div style={{ display: "flex", alignItems: "center" }}>
           <div>
             <iframe
+              title="蘆洲健身房地圖"
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d231263.0357214885!2d121.27439860452445!3d25.085440927363337!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3442ac6b61dbbd8b%3A0xbcd1baad5c06a482!2z5Y-w5YyX5biC!5e0!3m2!1szh-TW!2stw!4v1672121439418!5m2!1szh-TW!2stw"
               width={850}
               height={500}

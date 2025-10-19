@@ -3,7 +3,7 @@ import { Password } from "primereact/password";
 import { Toast } from "primereact/toast";
 import { Button } from "primereact/button";
 import Axios from "axios";
-import { API_ENDPOINTS } from './config/api';
+import { API_ENDPOINTS } from '../services/api';
 function ChangePwd({ id, setToken }) {
   const [newPwd, setNewPwd] = useState("");
   const [oldPwd, setOldPwd] = useState("");

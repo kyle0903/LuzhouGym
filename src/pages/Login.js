@@ -10,7 +10,7 @@ import Axios from "axios";
 import moment from "moment";
 import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { API_ENDPOINTS } from './config/api';
+import { API_ENDPOINTS } from '../services/api';
 function Login() {
   //密碼的值
   const [pwd, setPwd] = useState("");
@@ -74,11 +74,11 @@ function Login() {
   );
 
   //因為React 18的useEffect會跑兩次，這個變數是為了判斷是否第二次執行useEffect
-  var isTwice = false;
+  const isTwiceRef = useRef(false);
   const [shopNum, setShopNum] = useState(0);
   //每次更新會跑一次的動作
   useEffect(() => {
-    if (!isTwice) {
+    if (!isTwiceRef.current) {
       if (validcode) {
         Axios.get(`${API_ENDPOINTS.SIGN_ENABLE}/${validcode}`).then(
           (data) => {
@@ -119,9 +119,9 @@ function Login() {
           }
         );
       }
-      isTwice = true;
+      isTwiceRef.current = true;
     }
-  }, []);
+  }, [validcode, forgetCode]);
   //清除所有欄位
   function ClearAll() {
     setPwd("");
@@ -168,7 +168,7 @@ function Login() {
   //忘記密碼更新
   function updatePwd() {
     if (forget_pwd !== "" && forget_pwdCheck !== "") {
-      if (forget_pwd == forget_pwdCheck) {
+      if (forget_pwd === forget_pwdCheck) {
         Axios.post(`${API_ENDPOINTS.FORGETPWD_UPDATE}`, {
           forget_user: forget_user,
           forget_pwd: forget_pwd,
@@ -279,7 +279,7 @@ function Login() {
         </Card>
       </Dialog>
       <Dialog
-        header={"修改新密碼" + "(" + "會員名稱：" + forget_user + ")"}
+        header={`修改新密碼(會員名稱：${forget_user})`}
         visible={visibleUpdate}
         style={{ width: "50vw" }}
         onHide={() => setVisibleUpdate(false)}
@@ -321,8 +321,8 @@ function Login() {
       <Toast ref={toastTC} position="top-center" />
     </div>
   );
-  if (activeIndex != activeIndex2) {
-    if (activeIndex == 1) {
+  if (activeIndex !== activeIndex2) {
+    if (activeIndex === 1) {
       setBtnFooter("註冊");
     } else {
       setBtnFooter("登入");
@@ -468,7 +468,7 @@ function Login() {
             </div>
           </div>
           {/* 會員註冊畫面 */}
-          {activeIndex == 1 ? (
+          {activeIndex === 1 ? (
             <div style={{ marginTop: "25px" }}>
               <div className="p-inputgroup flex-1">
                 <span className="p-inputgroup-addon">

@@ -1,7 +1,7 @@
 import Carousel from "react-bootstrap/Carousel";
-import gymNavPic_1 from "../../assets/images/gymNavPic_1.jpg";
-import gymNavPic_2 from "../../assets/images/gymNavPic_2.jpg";
-import gymNavPic_3 from "../../assets/images/gymNavPic_3.jpg";
+import gymNavPic_1 from "../../assets/images/pic/gymNavPic_1.jpg";
+import gymNavPic_2 from "../../assets/images/pic/gymNavPic_2.jpg";
+import gymNavPic_3 from "../../assets/images/pic/gymNavPic_3.jpg";
 
 function HomeCarousel() {
   return (

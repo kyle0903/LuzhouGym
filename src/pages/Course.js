@@ -1,11 +1,11 @@
 import { React, useState } from "react";
 import CourseCarousel from "../components/Carousel/CourseCarousel";
-import course1 from "../assets/images/course1.jpeg";
-import course1_2 from "../assets/images/course1_2.jpeg";
-import course2 from "../assets/images/course2.jpeg";
-import course2_1 from "../assets/images/course2_1.jpeg";
-import course3 from "../assets/images/course3.jpeg";
-import course3_1 from "../assets/images/course3_1.jpeg";
+import course1 from "../assets/images/pic/course1.jpeg";
+import course1_2 from "../assets/images/pic/course1_2.jpeg";
+import course2 from "../assets/images/pic/course2.jpeg";
+import course2_1 from "../assets/images/pic/course2_1.jpeg";
+import course3 from "../assets/images/pic/course3.jpeg";
+import course3_1 from "../assets/images/pic/course3_1.jpeg";
 import Navbar from "../components/Navbar";
 function Course() {
   //購物車數量
@@ -18,7 +18,7 @@ function Course() {
       <div className="title">飛輪課程</div>
       <div style={{ display: "flex" }}>
         <div>
-          <img src={course1} style={{ width: "850px" }} />
+          <img src={course1} alt="飛輪基礎課程" style={{ width: "850px" }} />
         </div>
 
         <div className="textarea">
@@ -35,13 +35,13 @@ function Course() {
             飛輪進階課程是為那些尋求更高挑戰和更進一步的健身者而設計的。通過更高強度的訓練和復雜的動作組合，這個課程將幫助您提升耐力、速度和力量，進一步挑戰自己的身體極限
           </div>
         </div>
-        <img src={course1_2} style={{ width: "850px", height: "550px" }} />
+        <img src={course1_2} alt="飛輪進階課程" style={{ width: "850px", height: "550px" }} />
       </div>
       {/* 拳擊課程 */}
       <div className="title">拳擊課程</div>
       <div style={{ display: "flex" }}>
         <div>
-          <img src={course2} style={{ width: "850px" }} />
+          <img src={course2} alt="拳擊基礎課程" style={{ width: "850px" }} />
         </div>
 
         <div className="textarea">
@@ -58,13 +58,13 @@ function Course() {
             拳擊進階課程專注於進一步提升你的技術水平。無論你是初學者還是已經有基礎的拳擊者，進階課程都會教授更高級的技巧、組合和戰術，幫助你提升拳擊技能，同時，進階課程提供更高強度和更具挑戰性的訓練，可以激發你的潛力並超越自我。通過不斷地克服新的技術和身體上的挑戰，你將體驗到成長和進步的喜悅
           </div>
         </div>
-        <img src={course2_1} style={{ width: "850px", height: "550px" }} />
+        <img src={course2_1} alt="拳擊進階課程" style={{ width: "850px", height: "550px" }} />
       </div>
       {/* 瑜珈課程 */}
       <div className="title">瑜珈課程</div>
       <div style={{ display: "flex" }}>
         <div>
-          <img src={course3} style={{ width: "850px" }} />
+          <img src={course3} alt="基礎瑜珈課程" style={{ width: "850px" }} />
         </div>
 
         <div className="textarea">
@@ -82,7 +82,7 @@ function Course() {
             空中瑜珈是一種創新而有趣的運動方式，結合了瑜珈的伸展和強化動作，以及在懸掛的絲帶或吊索上進行的動作。這種獨特的運動方式可以讓你在挑戰自己的同時，享受新奇和樂趣，而且因為空中瑜珈的動作需要你在懸掛狀態下保持平衡和控制身體。這可以幫助你加強核心肌肉，包括腹部、背部和臀部肌肉，提高身體的穩定性和平衡能力
           </div>
         </div>
-        <img src={course3_1} style={{ width: "850px", height: "550px" }} />
+        <img src={course3_1} alt="空中瑜伽課程" style={{ width: "850px", height: "550px" }} />
       </div>
     </div>
   );

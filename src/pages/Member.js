@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Axios from "axios";
-import { API_ENDPOINTS } from './config/api';
+import { API_ENDPOINTS } from '../services/api';
 import { TabMenu } from "primereact/tabmenu";
 import { Card } from "primereact/card";
 import { InputText } from "primereact/inputtext";
@@ -22,7 +22,7 @@ function Member() {
   //token
   const [token, setToken] = useState(window.localStorage.getItem("token"));
   //判斷useEffect是否執行兩次
-  var isTwice = false;
+  const isTwiceRef = useRef(false);
   //跳轉頁面
   const navigate = useNavigate();
   //會員名稱
@@ -31,10 +31,6 @@ function Member() {
   const [gender, setGender] = useState("");
   //年齡
   const [age, setAge] = useState(20);
-  //身高
-  const [height, setHeight] = useState(0.0);
-  //體重
-  const [weight, setWeight] = useState(0.0);
   //鎖屏
   const [blocked, setBlocked] = useState(true);
   //編輯顯示
@@ -46,11 +42,11 @@ function Member() {
   const [shopNum, setShopNum] = useState(0);
 
   useEffect(() => {
-    if (!isTwice) {
+    if (!isTwiceRef.current) {
       if (token) {
         Axios.post(API_ENDPOINTS.TOKEN, { token: token }).then(
           (data) => {
-            if (data.data == false) {
+            if (data.data === false) {
               navigate("/login");
             } else {
               setUser(data.data.user);
@@ -67,8 +63,6 @@ function Member() {
                   } else {
                     setAge(res.data.result[0].age);
                     setGender(res.data.result[0].gender);
-                    setHeight(res.data.result[0].height);
-                    setWeight(res.data.result[0].weight);
                   }
                 }
               );
@@ -79,12 +73,12 @@ function Member() {
         setToken(null);
         navigate("/login");
       }
-      isTwice = true;
+      isTwiceRef.current = true;
     }
-  }, []);
+  }, [token, id, navigate]);
 
   function EditSave(n) {
-    if (n == 0) {
+    if (n === 0) {
       setBlocked(false);
       setdisabledEdit(true);
       setdisabledSave(false);
@@ -95,8 +89,6 @@ function Member() {
       Axios.post(`${API_ENDPOINTS.UPDATE}/${id}`, {
         gender: gender,
         age: age,
-        height: height,
-        weight: weight,
       }).then((res) => {
         if (res.data.status === "success") {
           toastTC.current.show({
@@ -132,7 +124,7 @@ function Member() {
           style={{ textAlign: "center" }}
         />
         <Card>
-          {activeIndex == 0 ? (
+          {activeIndex === 0 ? (
             //基本資料畫面
             <div style={{ position: "relative" }}>
               <BlockUI blocked={blocked}>
@@ -230,68 +222,6 @@ function Member() {
                       className="w-full"
                     />
                   </div>
-                </div>
-                <div
-                  style={{
-                    marginBottom: "25px",
-                    width: "50%",
-                  }}
-                >
-                  <label
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: "18px",
-                      marginRight: "10px",
-                    }}
-                  >
-                    身高(cm)：
-                  </label>
-                  <Inplace closable>
-                    <InplaceDisplay>{height || "Click to Edit"}</InplaceDisplay>
-                    <InplaceContent>
-                      <InputText
-                        keyfilter="num"
-                        value={height}
-                        onChange={(e) => setHeight(e.target.value)}
-                        style={{
-                          fontWeight: "bold",
-                          color: "black",
-                          opacity: 1,
-                        }}
-                      />
-                    </InplaceContent>
-                  </Inplace>
-                </div>
-                <div
-                  style={{
-                    marginBottom: "25px",
-                    width: "50%",
-                  }}
-                >
-                  <label
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: "18px",
-                      marginRight: "15px",
-                    }}
-                  >
-                    體重(kg)：
-                  </label>
-                  <Inplace closable>
-                    <InplaceDisplay>{weight || "Click to Edit"}</InplaceDisplay>
-                    <InplaceContent>
-                      <InputText
-                        keyfilter="num"
-                        value={weight}
-                        onChange={(e) => setWeight(e.target.value)}
-                        style={{
-                          fontWeight: "bold",
-                          color: "black",
-                          opacity: 1,
-                        }}
-                      />
-                    </InplaceContent>
-                  </Inplace>
                 </div>
                 <div style={{ textAlign: "center", marginTop: "60px" }}>
                   <Button

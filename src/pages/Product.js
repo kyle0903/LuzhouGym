@@ -8,16 +8,16 @@ import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
 import Navbar from "../components/Navbar";
-import { API_ENDPOINTS } from './config/api';
+import { API_ENDPOINTS } from '../services/api';
 function Product() {
   //產品資料
   const [products, setProducts] = useState([]);
   //判斷useEffect是否執行兩次
-  var isTwice = false;
+  const isTwiceRef = useRef(false);
   //管理每個Dialog的顯示狀態
   const [dialogStates, setDialogStates] = useState({});
   //token
-  const [token, setToken] = useState(window.localStorage.getItem("token"));
+  const [token] = useState(window.localStorage.getItem("token"));
   //會員id
   const [userId, setUserId] = useState("");
   //商品數量
@@ -31,14 +31,14 @@ function Product() {
   //購物車數量
   const [shopNum, setShopNum] = useState(0);
   useEffect(() => {
-    if (!isTwice) {
+    if (!isTwiceRef.current) {
       Axios.get(API_ENDPOINTS.PRODUCT).then((res) => {
         setProducts(res.data.slice(0, 4));
       });
       if (token) {
         Axios.post(API_ENDPOINTS.TOKEN, { token: token }).then(
           (data) => {
-            if (data.data == false) {
+            if (data.data === false) {
               setUserId(0);
             } else {
               setUserId(data.data.id);
@@ -46,9 +46,9 @@ function Product() {
           }
         );
       }
+      isTwiceRef.current = true;
     }
-    isTwice = true;
-  }, []);
+  }, [token]);
   const getSeverity = (product) => {
     switch (product.inventoryStatus) {
       case "INSTOCK":
@@ -76,7 +76,7 @@ function Product() {
     return formattedData;
   };
   const addCart = (productId, productName, price, productPic) => {
-    if (userId == 0) {
+    if (userId === 0) {
       toastTC.current.show({
         severity: "error",
         summary: "警告",

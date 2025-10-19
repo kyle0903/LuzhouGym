@@ -1,0 +1,52 @@
+services:
+  # PostgreSQL 資料庫
+  postgres:
+    image: postgres:15-alpine
+    container_name: luzhou_gym_db
+    restart: unless-stopped
+    env_file:
+      - ./server/.env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - ./server/database/data:/var/lib/postgresql/data
+      - ./server/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - luzhou_gym_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Node.js API 後端
+  api:
+    image: asia-east1-docker.pkg.dev/kyle-side-project/luzhougym/luzhougym_api:dev
+    container_name: luzhou_gym_api
+    restart: unless-stopped
+    env_file:
+      - ./server/.env
+    environment:
+      DB_HOST: postgres  # 覆寫為 Docker 內部主機名稱
+    ports:
+      - "${PORT}:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./server/src:/app/src
+      - ./server/package.json:/app/package.json
+      - /app/node_modules
+    networks:
+      - luzhou_gym_network
+    command: npm run dev
+
+networks:
+  luzhou_gym_network:
+    driver: bridge

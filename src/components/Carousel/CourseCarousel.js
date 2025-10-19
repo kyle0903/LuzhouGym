@@ -1,7 +1,7 @@
 import Carousel from "react-bootstrap/Carousel";
-import coursePic1 from "../../assets/images/coursePic1.jpeg";
-import coursePic2 from "../../assets/images/coursePic2.jpeg";
-import coursePic3 from "../../assets/images/coursePic3.jpeg";
+import coursePic1 from "../../assets/images/pic/coursePic1.jpeg";
+import coursePic2 from "../../assets/images/pic/coursePic2.jpeg";
+import coursePic3 from "../../assets/images/pic/coursePic3.jpeg";
 
 function CourseCarousel() {
   return (

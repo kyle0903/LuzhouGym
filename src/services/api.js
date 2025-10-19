@@ -25,6 +25,34 @@ apiClient.interceptors.request.use(
   }
 );
 
+// API 端點常數
+export const API_ENDPOINTS = {
+  // 基礎 URL
+  HOME: process.env.REACT_APP_API_URL || 'http://localhost:3000',
+
+  // 認證相關
+  SIGN: `${API_BASE_URL}/api/sign`,
+  SIGN_ENABLE: `${API_BASE_URL}/api/signEnable`,
+  LOGIN: `${API_BASE_URL}/api/login`,
+  TOKEN: `${API_BASE_URL}/api/token`,
+  FORGETPWD: `${API_BASE_URL}/api/forgetPwd`,
+  GETCODE: `${API_BASE_URL}/api/getCode`,
+  FORGETPWD_UPDATE: `${API_BASE_URL}/api/forgetPwdUpdate`,
+  CHANGEPWD: `${API_BASE_URL}/api/changepwd`,
+
+  // 會員相關
+  MEMBER: `${API_BASE_URL}/api/basicmember`,
+  UPDATE: `${API_BASE_URL}/api/update`,
+
+  // 產品相關
+  PRODUCT: `${API_BASE_URL}/api/product`,
+  ADDCART: `${API_BASE_URL}/api/addcart`,
+  ORDER: `${API_BASE_URL}/api/order`,
+
+  // 支付相關
+  LINEPAY: `${API_BASE_URL}/api/linepay`,
+};
+
 // API 服務
 const api = {
   // 認證相關

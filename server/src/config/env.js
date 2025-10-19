@@ -5,14 +5,14 @@ const config = {
   nodeEnv: process.env.NODE_ENV || 'development',
   port: process.env.PORT || 8081,
 
-  // Database
+  // Database (PostgreSQL)
   database: {
     host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
+    user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'luzhou_gym',
-    port: process.env.DB_PORT || 3306,
-    connectionLimit: 10,
+    port: process.env.DB_PORT || 5432,
+    max: 10, // 連線池最大連線數
   },
 
   // JWT

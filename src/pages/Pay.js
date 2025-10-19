@@ -2,7 +2,7 @@ import Axios from "axios";
 import React, { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { Toast } from "primereact/toast";
-import { API_ENDPOINTS } from './config/api';
+import { API_ENDPOINTS } from '../services/api';
 function Pay() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -10,9 +10,9 @@ function Pay() {
   const orderId = searchParams.get("orderId");
   //通知
   const toastTC = useRef(null);
-  let isTwice = false;
+  const isTwiceRef = useRef(false);
   useEffect(() => {
-    if (!isTwice) {
+    if (!isTwiceRef.current) {
       Axios.post(`${API_ENDPOINTS.LINEPAY}/confirm`, {
         transactionId: transactionId,
         orderId: orderId,
@@ -29,9 +29,9 @@ function Pay() {
           }, 1000);
         }
       });
-      isTwice = true;
+      isTwiceRef.current = true;
     }
-  }, []);
+  }, [transactionId, orderId]);
 
   return (
     <div>

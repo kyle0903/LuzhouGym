@@ -1,11 +1,11 @@
-import { React, useEffect, useState } from "react";
+import { React, useEffect, useState, useRef } from "react";
 import { Menubar } from "primereact/menubar";
-import gymLogo from "./pic/gymLogo.png";
+import gymLogo from "../assets/images/pic/gymLogo.png";
 import { useNavigate } from "react-router-dom";
 import { Button } from "primereact/button";
 import Axios from "axios";
 import { Badge } from "primereact/badge";
-import { API_ENDPOINTS } from './config/api';
+import { API_ENDPOINTS } from '../services/api';
 
 function Navbarr({ shopNum, setShopNum }) {
   //跳轉頁面
@@ -22,7 +22,7 @@ function Navbarr({ shopNum, setShopNum }) {
   const [tokenCheck, setTokenCheck] = useState(true);
 
   //判斷useEffect是否執行兩次
-  var isTwice = false;
+  const isTwiceRef = useRef(false);
 
 
   const items = [
@@ -93,11 +93,11 @@ function Navbarr({ shopNum, setShopNum }) {
     </div>
   );
   useEffect(() => {
-    if (!isTwice) {
+    if (!isTwiceRef.current) {
       if (token) {
         Axios.post(API_ENDPOINTS.TOKEN, { token: token }).then(
           (data) => {
-            if (data.data == false) {
+            if (data.data === false) {
               setLogOutBtn("none");
               setUser("訪客");
               setTokenCheck(true);
@@ -118,9 +118,9 @@ function Navbarr({ shopNum, setShopNum }) {
         setLogOutBtn("none");
         setUser("訪客");
       }
-      isTwice = true;
+      isTwiceRef.current = true;
     }
-  }, []);
+  }, [token, setShopNum]);
   return (
     <div>
       <Menubar model={items} start={start} end={end} />
