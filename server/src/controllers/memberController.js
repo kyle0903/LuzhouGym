@@ -20,8 +20,8 @@ class MemberController {
   async updateBasicInfo(req, res) {
     try {
       const { id } = req.params;
-      const { gender, age } = req.body;
-      const result = await memberService.updateBasicInfo(id, { gender, age });
+      const { gender, age, phone, address } = req.body;
+      const result = await memberService.updateBasicInfo(id, { gender, age, phone, address });
       res.json({ status: 'success', ...result });
     } catch (error) {
       res.json({ status: 'failed', message: error.message });

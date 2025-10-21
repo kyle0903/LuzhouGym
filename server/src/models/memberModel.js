@@ -81,8 +81,8 @@ class MemberModel {
    * 更新會員基本資料
    */
   async updateBasicInfo(userId, data) {
-    const sql = 'UPDATE member_basic_info SET age = $1, gender = $2 WHERE user_id = $3';
-    await query(sql, [data.age, data.gender, userId]);
+    const sql = 'UPDATE member_basic_info SET age = $1, gender = $2, phone = $3, address = $4, updated_at = CURRENT_TIMESTAMP WHERE user_id = $5';
+    await query(sql, [data.age, data.gender, data.phone || null, data.address || null, userId]);
   }
 
   /**

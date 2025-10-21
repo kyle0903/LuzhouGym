@@ -9,7 +9,7 @@ class ProductController {
       const products = await productService.getAllProducts();
       res.json(products);
     } catch (error) {
-      res.status(500).json({ status: 'failed', message: error.message });
+      res.status(400).json({ status: 'failed', message: error.message });
     }
   }
 
@@ -27,9 +27,9 @@ class ProductController {
         quantity: productNum,
         productPic,
       });
-      res.json({ status: 'success' });
+      res.json({ status: 'success', message: '成功加入購物車' });
     } catch (error) {
-      res.status(500).json({ status: 'failed', message: error.message });
+      res.status(400).json({ status: 'failed', message: error.message });
     }
   }
 
@@ -42,7 +42,20 @@ class ProductController {
       const orders = await productService.getCart(id);
       res.json(orders);
     } catch (error) {
-      res.status(500).json({ status: 'failed', message: error.message });
+      res.status(400).json({ status: 'failed', message: error.message });
+    }
+  }
+
+  /**
+   * 取得購買記錄（已付款訂單）
+   */
+  async getPurchaseHistory(req, res) {
+    try {
+      const { id } = req.params;
+      const orders = await productService.getPurchaseHistory(id);
+      res.json(orders);
+    } catch (error) {
+      res.status(400).json({ status: 'failed', message: error.message });
     }
   }
 
@@ -52,10 +65,11 @@ class ProductController {
   async removeFromCart(req, res) {
     try {
       const { cart_id } = req.params;
-      const result = await productService.removeFromCart(cart_id);
-      res.json({ status: 'success', ...result });
+      await productService.removeFromCart(cart_id);
+      res.json({ status: 'success', message: "成功刪除一筆訂單" });
+
     } catch (error) {
-      res.status(500).json({ status: 'failed', message: error.message });
+      res.status(400).json({ status: 'failed', message: error.message });
     }
   }
 }

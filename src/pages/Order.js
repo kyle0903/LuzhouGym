@@ -3,13 +3,15 @@ import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { Card } from "primereact/card";
 import { Button } from "primereact/button";
-import { useOrder, usePayment } from "../hooks";
+import { Toast } from "primereact/toast";
+import { useOrder, usePayment, useNotification } from "../hooks";
 
 function Order() {
   // Hooks
   const { id } = useParams();
   const { getOrders, deleteOrder, orders, loading: orderLoading } = useOrder();
   const { initiateLinePay, loading: paymentLoading } = usePayment();
+  const { toastRef } = useNotification();
   const twiceRef = useRef(false);
 
   // 狀態
@@ -56,6 +58,7 @@ function Order() {
 
   return (
     <div>
+      <Toast ref={toastRef} position="top-center" />
       <Navbar shopNum={shopNum} setShopNum={setShopNum} />
       {shopNum !== 0 ? (
         <div>

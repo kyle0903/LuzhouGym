@@ -7,7 +7,7 @@ const showToast = (severity, summary, detail) => {
   toastRef.current?.show({
     severity,
     summary,
-    detail: detail || summary,
+    detail: detail !== undefined && detail !== null && detail !== "" ? detail : summary,
     life: 3000,
   });
 };

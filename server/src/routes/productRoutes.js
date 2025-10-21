@@ -11,6 +11,9 @@ router.post('/addcart', productController.addToCart.bind(productController));
 // 取得購物車訂單
 router.get('/order/:id', productController.getCart.bind(productController));
 
+// 取得購買記錄
+router.get('/purchase-history/:id', productController.getPurchaseHistory.bind(productController));
+
 // 刪除購物車項目
 router.delete('/order/delete/:cart_id', productController.removeFromCart.bind(productController));
 

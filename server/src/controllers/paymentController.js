@@ -10,7 +10,7 @@ class PaymentController {
       const result = await paymentService.initiateLinePay(id);
       res.json({ status: "success", ...result });
     } catch (error) {
-      res.status(500).json({ status: "failed", message: error.message });
+      res.status(400).json({ status: "failed", message: error.message });
     }
   }
 
@@ -26,7 +26,7 @@ class PaymentController {
       );
       res.json({ status: "success", ...result });
     } catch (error) {
-      res.status(500).json({ status: "failed", message: error.message });
+      res.status(400).json({ status: "failed", message: error.message });
     }
   }
 }

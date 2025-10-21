@@ -24,6 +24,8 @@ CREATE TABLE member_basic_info (
   user_id INTEGER NOT NULL UNIQUE,
   age INTEGER DEFAULT 20,
   gender VARCHAR(10) DEFAULT 'man',
+  phone VARCHAR(20),
+  address VARCHAR(255),
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES member_info(id) ON DELETE CASCADE
 );

@@ -30,6 +30,17 @@ class OrderModel {
   }
 
   /**
+   * 取得用戶的已付款訂單（購買記錄）
+   */
+  async findPaidByUserId(userId) {
+    const sql = `SELECT * FROM order_info
+                 INNER JOIN member_info ON order_info.user_id = member_info.id
+                 WHERE order_info.user_id = $1 AND order_info.pay = 1
+                 ORDER BY order_info.cart_id DESC`;
+    return await query(sql, [userId]);
+  }
+
+  /**
    * 刪除訂單
    */
   async deleteById(cartId) {

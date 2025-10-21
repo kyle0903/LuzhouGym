@@ -42,8 +42,8 @@ class LinepayService {
         orderId: orderData.orderId,
         packages: orderData.packages,
         redirectUrls: {
-          confirmUrl: `${this.returnHost}/api/payment/confirm`,
-          cancelUrl: `${this.returnHost}/api/payment/cancel`,
+          confirmUrl: `${this.returnHost}/payment/confirm`,
+          cancelUrl: `${this.returnHost}/payment/cancel`,
         },
       };
 

@@ -36,11 +36,18 @@ class ProductService {
   }
 
   /**
+   * 取得購買記錄（已付款訂單）
+   */
+  async getPurchaseHistory(userId) {
+    return await orderModel.findPaidByUserId(userId);
+  }
+
+  /**
    * 刪除購物車項目
    */
   async removeFromCart(cartId) {
     await orderModel.deleteById(cartId);
-    return { success: true, message: '成功刪除一筆訂單' };
+    return { success: true };
   }
 }
 

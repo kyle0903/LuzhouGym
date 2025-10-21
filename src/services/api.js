@@ -53,6 +53,7 @@ const api = {
     getAll: () => apiClient.get("/product"),
     addToCart: (data) => apiClient.post("/addcart", data),
     getCart: (id) => apiClient.get(`/order/${id}`),
+    getPurchaseHistory: (id) => apiClient.get(`/purchase-history/${id}`),
     removeFromCart: (cartId) => apiClient.delete(`/order/delete/${cartId}`),
   },
 
