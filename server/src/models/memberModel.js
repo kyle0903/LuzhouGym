@@ -5,7 +5,7 @@ class MemberModel {
    * 根據用戶名查詢會員
    */
   async findByUsername(username) {
-    const sql = 'SELECT * FROM member_info WHERE user = ?';
+    const sql = 'SELECT * FROM member_info WHERE username = $1';
     const results = await query(sql, [username]);
     return results[0] || null;
   }
@@ -14,7 +14,7 @@ class MemberModel {
    * 根據 ID 查詢會員
    */
   async findById(id) {
-    const sql = 'SELECT * FROM member_info WHERE id = ?';
+    const sql = 'SELECT * FROM member_info WHERE id = $1';
     const results = await query(sql, [id]);
     return results[0] || null;
   }
@@ -23,7 +23,7 @@ class MemberModel {
    * 建立新會員
    */
   async create(userData) {
-    const sql = 'INSERT INTO member_info(user, password, email, create_date, vertify) VALUES(?, ?, ?, ?, ?)';
+    const sql = 'INSERT INTO member_info(username, password, email, create_date, vertify) VALUES($1, $2, $3, $4, $5) RETURNING id';
     const result = await query(sql, [
       userData.username,
       userData.password,
@@ -31,14 +31,14 @@ class MemberModel {
       userData.createDate,
       0, // 未驗證
     ]);
-    return result.insertId;
+    return result[0].id;
   }
 
   /**
    * 更新會員驗證狀態
    */
   async updateVerificationStatus(userId, status = 1) {
-    const sql = 'UPDATE member_info SET vertify = ? WHERE id = ?';
+    const sql = 'UPDATE member_info SET vertify = $1 WHERE id = $2';
     await query(sql, [status, userId]);
   }
 
@@ -46,7 +46,7 @@ class MemberModel {
    * 更新會員密碼
    */
   async updatePassword(userId, newPassword) {
-    const sql = 'UPDATE member_info SET password = ? WHERE id = ?';
+    const sql = 'UPDATE member_info SET password = $1 WHERE id = $2';
     await query(sql, [newPassword, userId]);
   }
 
@@ -54,7 +54,7 @@ class MemberModel {
    * 根據用戶名和信箱查詢會員
    */
   async findByUsernameAndEmail(username, email) {
-    const sql = 'SELECT * FROM member_info WHERE user = ? AND email = ?';
+    const sql = 'SELECT * FROM member_info WHERE username = $1 AND email = $2';
     const results = await query(sql, [username, email]);
     return results[0] || null;
   }
@@ -63,7 +63,7 @@ class MemberModel {
    * 查詢會員基本資料
    */
   async findBasicInfo(userId) {
-    const sql = 'SELECT * FROM member_basic_info WHERE user_id = ?';
+    const sql = 'SELECT * FROM member_basic_info WHERE user_id = $1';
     const results = await query(sql, [userId]);
     return results[0] || null;
   }
@@ -72,7 +72,7 @@ class MemberModel {
    * 建立會員基本資料
    */
   async createBasicInfo(userId) {
-    const sql = 'INSERT INTO member_basic_info(user_id) VALUES(?)';
+    const sql = 'INSERT INTO member_basic_info(user_id) VALUES($1)';
     await query(sql, [userId]);
     return this.findBasicInfo(userId);
   }
@@ -81,8 +81,16 @@ class MemberModel {
    * 更新會員基本資料
    */
   async updateBasicInfo(userId, data) {
-    const sql = 'UPDATE member_basic_info SET age = ?, gender = ? WHERE user_id = ?';
+    const sql = 'UPDATE member_basic_info SET age = $1, gender = $2 WHERE user_id = $3';
     await query(sql, [data.age, data.gender, userId]);
+  }
+
+  /**
+   * 刪除會員（用於註冊失敗回滾）
+   */
+  async deleteById(userId) {
+    const sql = 'DELETE FROM member_info WHERE id = $1';
+    await query(sql, [userId]);
   }
 }
 

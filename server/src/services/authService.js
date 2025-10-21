@@ -19,22 +19,43 @@ class AuthService {
     // 加密密碼
     const hashedPassword = bcrypt.hashSync(password, 10);
 
-    // 建立會員
-    const userId = await memberModel.create({
-      username,
-      password: hashedPassword,
-      email,
-      createDate: currentTime,
-    });
+    let userId;
+    try {
+      // 建立會員
+      userId = await memberModel.create({
+        username,
+        password: hashedPassword,
+        email,
+        createDate: currentTime,
+      });
 
-    // 生成驗證碼
-    const randomCode = crypto.randomBytes(32).toString('hex');
-    await verificationModel.create(userId, randomCode);
+      // 生成驗證碼
+      const randomCode = crypto.randomBytes(32).toString('hex');
+      await verificationModel.create(userId, randomCode);
 
-    // 發送驗證信
-    await emailService.sendVerificationEmail(email, randomCode);
+      // 發送驗證信（如果失敗，會拋出錯誤並回滾）
+      await emailService.sendVerificationEmail(email, randomCode);
 
-    return { success: true, message: '已寄信至您的信箱，請前往認證會員帳號' };
+      return { success: true, message: '已寄信至您的信箱，請前往認證會員帳號' };
+    } catch (error) {
+      // 如果發送郵件失敗，刪除已建立的會員和驗證碼
+      if (userId) {
+        console.error('註冊失敗，正在清理資料...', error.message);
+        try {
+          await verificationModel.deleteByUserId(userId);
+          await memberModel.deleteById(userId);
+        } catch (cleanupError) {
+          console.error('清理資料失敗:', cleanupError);
+        }
+      }
+
+      // 根據錯誤類型提供友善訊息
+      if (error.message.includes('Invalid login') || error.message.includes('Application-specific password')) {
+        throw new Error('郵件發送服務設定錯誤，請聯繫系統管理員。註冊已取消。');
+      }
+
+      throw new Error(`註冊失敗：${error.message}`);
+    }
   }
 
   /**
@@ -75,7 +96,7 @@ class AuthService {
     // 生成 Token
     const token = jwtService.generateToken({
       id: member.id,
-      user: member.user,
+      user: member.username,
     });
 
     return {
@@ -129,7 +150,7 @@ class AuthService {
 
     const member = await memberModel.findById(verification.user_id);
 
-    return { success: true, user: member.user };
+    return { success: true, user: member.username };
   }
 
   /**

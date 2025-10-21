@@ -4,126 +4,72 @@ import { Card } from "primereact/card";
 import { Button } from "primereact/button";
 import { Password } from "primereact/password";
 import { TabMenu } from "primereact/tabmenu";
-import { Toast } from "primereact/toast";
 import { Dialog } from "primereact/dialog";
-import Axios from "axios";
+import { Toast } from "primereact/toast";
 import moment from "moment";
 import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { API_ENDPOINTS } from '../services/api';
+import { useAuth, useNotification } from "../hooks";
+import { getHomeUrl } from "../services/api";
+
 function Login() {
-  //密碼的值
+  // Hooks
+  const {
+    register,
+    login,
+    forgotPassword,
+    resetPassword,
+    verifyAccount,
+    getResetCode,
+    loading,
+  } = useAuth();
+  const { toastRef, showError } = useNotification();
+  const { validcode, forgetCode } = useParams();
+  const isTwiceRef = useRef(false);
+
+  // 表單狀態
   const [pwd, setPwd] = useState("");
   const [pwdCheck, setPwdCheck] = useState("");
-  //帳號的值
   const [user, setUser] = useState("");
-  //e-mail的值
   const [mail, setMail] = useState("");
-  //忘記密碼的user
   const [forget_user, setForget_user] = useState("");
-  //忘記密碼的mail
   const [forget_mail, setForget_mail] = useState("");
-  //忘記密碼的pwd
   const [forget_pwd, setForget_pwd] = useState("");
-  //忘記密碼的pwdcheck
   const [forget_pwdCheck, setForgetPwdCheck] = useState("");
-  //會員登入和註冊的選擇值
+
+  // UI 狀態
   const [activeIndex, setActiveIndex] = useState(0);
   const [activeIndex2, setActiveIndex2] = useState(0);
-  const items = [{ label: "會員登入" }, { label: "會員註冊" }];
-  //登入和註冊按鈕切換
   const [btn_footer, setBtnFooter] = useState("登入");
-  //記錄現在時間
-  const currentTime = moment(new Date()).format("YYYY-MM-DD hh:mm:ss");
-  //驗證碼
-  const { validcode, forgetCode } = useParams();
-  //通知
-  const toastTC = useRef(null);
-  //申請忘記密碼的visible
   const [visible, setVisible] = useState(false);
-  //申請忘記密碼的footer
-  const footerContent = (
-    <div>
-      <Button
-        label="取消"
-        icon="pi pi-times"
-        onClick={() => setVisible(false)}
-        className="p-button-text"
-      />
-      <Button
-        label="傳送驗證碼"
-        icon="pi pi-check"
-        onClick={() => forgetPwd()}
-        autoFocus
-      />
-    </div>
-  );
-  //更新忘記密碼的visible
   const [visibleUpdate, setVisibleUpdate] = useState(false);
-  //更新忘記密碼的footer
-  const footerUpdate = (
-    <div>
-      <Button
-        label="取消"
-        icon="pi pi-times"
-        onClick={() => setVisibleUpdate(false)}
-        className="p-button-text"
-      />
-      <Button label="確認" icon="pi pi-check" onClick={updatePwd} autoFocus />
-    </div>
-  );
-
-  //因為React 18的useEffect會跑兩次，這個變數是為了判斷是否第二次執行useEffect
-  const isTwiceRef = useRef(false);
   const [shopNum, setShopNum] = useState(0);
-  //每次更新會跑一次的動作
+
+  const items = [{ label: "會員登入" }, { label: "會員註冊" }];
+  const currentTime = moment(new Date()).format("YYYY-MM-DD hh:mm:ss");
+
+  // 處理驗證碼和重設密碼連結
   useEffect(() => {
     if (!isTwiceRef.current) {
       if (validcode) {
-        Axios.get(`${API_ENDPOINTS.SIGN_ENABLE}/${validcode}`).then(
-          (data) => {
-            if (data.data.status === "success") {
-              toastTC.current.show({
-                severity: "success",
-                summary: "通知",
-                detail: data.data.message,
-                life: 3000,
-              });
-            } else {
-              toastTC.current.show({
-                severity: "error",
-                summary: "警告",
-                detail: data.data.message,
-                life: 3000,
-              });
-            }
-          }
-        );
-        setTimeout(() => {
-          window.location.replace(`${API_ENDPOINTS.HOME}/login`);
-        }, 3000);
+        verifyAccount(validcode, () => {
+          setTimeout(() => {
+            window.location.replace(`${getHomeUrl()}/login`);
+          }, 3000);
+        });
       } else if (forgetCode) {
-        Axios.get(`${API_ENDPOINTS.GETCODE}/${forgetCode}`).then(
-          (res) => {
-            if (res.data.status === "success") {
-              setForget_user(res.data.user);
-              setVisibleUpdate(true);
-            } else {
-              toastTC.current.show({
-                severity: "error",
-                summary: "警告",
-                detail: res.data.message,
-                life: 3000,
-              });
-            }
-          }
-        );
+        getResetCode(forgetCode, (data) => {
+          setForget_user(data.user);
+          setVisibleUpdate(true);
+        });
       }
       isTwiceRef.current = true;
     }
-  }, [validcode, forgetCode]);
-  //清除所有欄位
+  }, [validcode, forgetCode, verifyAccount, getResetCode]);
+
+  // 清除所有欄位
   function ClearAll() {
+    if (loading) return;
     setPwd("");
     setPwdCheck("");
     setUser("");
@@ -131,114 +77,156 @@ function Login() {
     setForget_mail("");
     setForget_user("");
   }
-  //忘記密碼寄驗證碼
-  function forgetPwd() {
-    if (forget_user !== "" && forget_mail !== "") {
-      Axios.post(`${API_ENDPOINTS.FORGETPWD}`, {
-        forget_user: forget_user,
-        forget_mail: forget_mail,
-      }).then((res) => {
-        if (res.data.status === "success") {
-          toastTC.current.show({
-            severity: "success",
-            summary: "通知",
-            detail: res.data.message,
-            life: 3000,
-          });
-          setVisible(false);
-          ClearAll();
-        } else {
-          toastTC.current.show({
-            severity: "error",
-            summary: "警告",
-            detail: res.data.message,
-            life: 3000,
-          });
-        }
-      });
-    } else {
-      toastTC.current.show({
-        severity: "error",
-        summary: "警告",
-        detail: "有空值未填寫",
-        life: 3000,
-      });
+
+  // 忘記密碼寄驗證碼
+  function handleForgetPassword() {
+    if (forget_user === "" || forget_mail === "") {
+      showError("警告", "有空值未填寫");
+      return;
     }
+
+    forgotPassword({ forget_user, forget_mail }, () => {
+      setVisible(false);
+      ClearAll();
+    });
   }
-  //忘記密碼更新
-  function updatePwd() {
-    if (forget_pwd !== "" && forget_pwdCheck !== "") {
-      if (forget_pwd === forget_pwdCheck) {
-        Axios.post(`${API_ENDPOINTS.FORGETPWD_UPDATE}`, {
-          forget_user: forget_user,
-          forget_pwd: forget_pwd,
-        }).then((res) => {
-          if (res.data.status === "success") {
-            toastTC.current.show({
-              severity: "success",
-              summary: "通知",
-              detail: res.data.message,
-              life: 3000,
-            });
-            setTimeout(() => {
-              window.location.replace(`${API_ENDPOINTS.HOME}/login`);
-            }, 3000);
-          } else {
-            toastTC.current.show({
-              severity: "error",
-              summary: "警告",
-              detail: res.data.message,
-              life: 3000,
-            });
-          }
-        });
-      } else {
-        toastTC.current.show({
-          severity: "error",
-          summary: "警告",
-          detail: "密碼不同步",
-          life: 3000,
-        });
+
+  // 忘記密碼更新
+  function handleResetPassword() {
+    if (forget_pwd === "" || forget_pwdCheck === "") {
+      showError("警告", "有空值未填寫");
+      return;
+    }
+
+    if (forget_pwd !== forget_pwdCheck) {
+      showError("警告", "密碼不同步");
+      return;
+    }
+
+    resetPassword({ forget_user, forget_pwd }, () => {
+      setTimeout(() => {
+        window.location.replace(`${getHomeUrl()}/login`);
+      }, 3000);
+    });
+  }
+
+  // 提交表單
+  function CommitData(btn_footer) {
+    if (btn_footer === "註冊") {
+      // 註冊驗證
+      if (user === "" || pwd === "" || pwdCheck === "" || mail === "") {
+        showError("警告", "有空值未填寫");
+        return;
       }
+
+      if (pwd !== pwdCheck) {
+        showError("警告", "密碼不同步");
+        return;
+      }
+
+      register({ user, pwd, mail, currentTime }, () => ClearAll());
     } else {
-      toastTC.current.show({
-        severity: "error",
-        summary: "警告",
-        detail: "有空值未填寫",
-        life: 3000,
+      // 登入驗證
+      if (user === "" || pwd === "") {
+        showError("警告", "有空值未填寫");
+        return;
+      }
+
+      login({ user, pwd }, (data) => {
+        setTimeout(() => {
+          const path = `${getHomeUrl()}/member/${data.id}`;
+          window.location.replace(path);
+        }, 3000);
       });
     }
   }
-  //顯示Card的最尾端按鈕的部分
+
+  // Tab 切換處理
+  if (activeIndex !== activeIndex2) {
+    if (activeIndex === 1) {
+      setBtnFooter("註冊");
+    } else {
+      setBtnFooter("登入");
+    }
+    setPwd("");
+    setUser("");
+    setActiveIndex2(activeIndex);
+  }
+
+  // 申請忘記密碼的 footer
+  const footerContent = (
+    <div>
+      <Button
+        label="取消"
+        icon="pi pi-times"
+        onClick={() => setVisible(false)}
+        className="p-button-text"
+        disabled={loading}
+      />
+      <Button
+        label="傳送驗證碼"
+        icon={loading ? "pi pi-spin pi-spinner" : "pi pi-check"}
+        onClick={handleForgetPassword}
+        autoFocus
+        loading={loading}
+        disabled={loading}
+      />
+    </div>
+  );
+
+  // 更新忘記密碼的 footer
+  const footerUpdate = (
+    <div>
+      <Button
+        label="取消"
+        icon="pi pi-times"
+        onClick={() => setVisibleUpdate(false)}
+        className="p-button-text"
+        disabled={loading}
+      />
+      <Button
+        label="確認"
+        icon={loading ? "pi pi-spin pi-spinner" : "pi pi-check"}
+        onClick={handleResetPassword}
+        autoFocus
+        loading={loading}
+        disabled={loading}
+      />
+    </div>
+  );
+
+  // Card footer
   const footer = (
     <div className="flex flex-wrap justify-content-end gap-2">
       <Button
         label={btn_footer}
-        icon="pi pi-check"
+        icon={loading ? "pi pi-spin pi-spinner" : "pi pi-check"}
         style={{ marginRight: "20px" }}
-        onClick={() => {
-          CommitData(btn_footer);
-        }}
+        onClick={() => CommitData(btn_footer)}
+        loading={loading}
+        disabled={loading}
       />
       <Button
         label="清除所有欄位"
         icon="pi pi-times"
         className="p-button-outlined p-button-secondary"
         style={{ marginRight: "20px" }}
-        onClick={() => {
-          ClearAll();
-        }}
+        onClick={ClearAll}
+        disabled={loading}
       />
-      <Button
-        label="忘記密碼"
-        icon="pi pi-question"
-        style={{
-          background: "rgb(255,255,255)",
-          color: "gray",
-          border: "none",
-        }}
-        onClick={() => setVisible(true)}
-      />
+      {activeIndex === 0 && (
+        <Button
+          label="忘記密碼"
+          icon="pi pi-question"
+          style={{
+            background: "rgb(255,255,255)",
+            color: "gray",
+            border: "none",
+          }}
+          onClick={() => setVisible(true)}
+          disabled={loading}
+        />
+      )}
       <Dialog
         header="忘記密碼（請輸入註冊時之帳號與信箱）"
         visible={visible}
@@ -247,7 +235,6 @@ function Login() {
         footer={footerContent}
       >
         <Card>
-          {/* 申請忘記密碼畫面 */}
           <div>
             <div className="p-inputgroup flex-1">
               <span className="p-inputgroup-addon">
@@ -256,9 +243,7 @@ function Login() {
               <InputText
                 value={forget_user}
                 placeholder="輸入帳號"
-                onChange={(e) => {
-                  setForget_user(e.target.value);
-                }}
+                onChange={(e) => setForget_user(e.target.value)}
                 keyfilter={/[^ ]/}
               />
             </div>
@@ -269,9 +254,7 @@ function Login() {
               <InputText
                 placeholder="輸入電子郵件"
                 value={forget_mail}
-                onChange={(e) => {
-                  setForget_mail(e.target.value);
-                }}
+                onChange={(e) => setForget_mail(e.target.value)}
                 keyfilter={/[^ ]/}
               />
             </div>
@@ -286,8 +269,6 @@ function Login() {
         footer={footerUpdate}
       >
         <Card>
-          {/* 更新忘記密碼畫面 */}
-
           <div>
             <div className="p-inputgroup flex-1">
               <span className="p-inputgroup-addon">
@@ -318,103 +299,12 @@ function Login() {
           </div>
         </Card>
       </Dialog>
-      <Toast ref={toastTC} position="top-center" />
     </div>
   );
-  if (activeIndex !== activeIndex2) {
-    if (activeIndex === 1) {
-      setBtnFooter("註冊");
-    } else {
-      setBtnFooter("登入");
-    }
-    setPwd("");
-    setUser("");
-    setActiveIndex2(activeIndex);
-  }
-  function CommitData(btn_footer) {
-    //註冊會員
-    if (btn_footer === "註冊") {
-      if (user === "" || pwd === "" || pwdCheck === "" || mail === "") {
-        //這邊可以再多加點條件，不然輸入空格也會過
-        toastTC.current.show({
-          severity: "error",
-          summary: "警告",
-          detail: "有空值未填寫",
-          life: 3000,
-        });
-      } else if (pwd !== pwdCheck) {
-        toastTC.current.show({
-          severity: "error",
-          summary: "警告",
-          detail: "密碼不同步",
-          life: 3000,
-        });
-      } else {
-        Axios.post(`${API_ENDPOINTS.SIGN}`, {
-          user: user,
-          pwd: pwd,
-          mail: mail,
-          currentTime: currentTime,
-        }).then((data) => {
-          if (data.data.status === "success") {
-            toastTC.current.show({
-              severity: "success",
-              summary: "通知",
-              detail: data.data.message,
-              life: 3000,
-            });
-          } else {
-            toastTC.current.show({
-              severity: "error",
-              summary: "警告",
-              detail: data.data.message,
-              life: 3000,
-            });
-          }
-        });
-      }
-    } else {
-      //登入會員
-      if (user === "" || pwd === "") {
-        //這邊可以再多加點條件，不然輸入空格也會過
-        toastTC.current.show({
-          severity: "error",
-          summary: "警告",
-          detail: "有空值未填寫",
-          life: 3000,
-        });
-      } else {
-        Axios.post(`${API_ENDPOINTS.LOGIN}`, {
-          user: user,
-          pwd: pwd,
-        }).then((data) => {
-          if (data.data.status === "success") {
-            toastTC.current.show({
-              severity: "success",
-              summary: "通知",
-              detail: data.data.message,
-              life: 3000,
-            });
-            window.localStorage.setItem("token", data.data.token);
-            setTimeout(() => {
-              const path = `${API_ENDPOINTS.HOME}/member/${data.data.id}`;
-              window.location.replace(path);
-              //navigate(path, { replace: true });
-            }, 3000);
-          } else {
-            toastTC.current.show({
-              severity: "error",
-              summary: "警告",
-              detail: data.data.message,
-              life: 3000,
-            });
-          }
-        });
-      }
-    }
-  }
+
   return (
     <div>
+      <Toast ref={toastRef} position="top-center" />
       <Navbar shopNum={shopNum} setShopNum={setShopNum} />
       <div className="memberLoginCard">
         <div style={{ textAlign: "center" }}>
@@ -436,7 +326,6 @@ function Login() {
           style={{ textAlign: "center" }}
         />
         <Card footer={footer}>
-          {/* 一般會員登入畫面 */}
           <div>
             <div
               className="p-inputgroup flex-1"
@@ -448,9 +337,7 @@ function Login() {
               <InputText
                 value={user}
                 placeholder="輸入帳號"
-                onChange={(e) => {
-                  setUser(e.target.value);
-                }}
+                onChange={(e) => setUser(e.target.value)}
                 keyfilter={/[^ ]/}
               />
             </div>
@@ -467,7 +354,6 @@ function Login() {
               />
             </div>
           </div>
-          {/* 會員註冊畫面 */}
           {activeIndex === 1 ? (
             <div style={{ marginTop: "25px" }}>
               <div className="p-inputgroup flex-1">
@@ -492,9 +378,7 @@ function Login() {
                 <InputText
                   placeholder="輸入電子郵件"
                   value={mail}
-                  onChange={(e) => {
-                    setMail(e.target.value);
-                  }}
+                  onChange={(e) => setMail(e.target.value)}
                   keyfilter={/[^ ]/}
                 />
               </div>

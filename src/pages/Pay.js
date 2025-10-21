@@ -1,41 +1,34 @@
-import Axios from "axios";
 import React, { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { Toast } from "primereact/toast";
-import { API_ENDPOINTS } from '../services/api';
+import { usePayment, useNotification } from "../hooks";
+import { getHomeUrl } from "../services/api";
+
 function Pay() {
+  // Hooks
   const location = useLocation();
+  const { confirmLinePay } = usePayment();
+  const { toastRef } = useNotification();
+  const isTwiceRef = useRef(false);
+
   const searchParams = new URLSearchParams(location.search);
   const transactionId = searchParams.get("transactionId");
   const orderId = searchParams.get("orderId");
-  //通知
-  const toastTC = useRef(null);
-  const isTwiceRef = useRef(false);
+
   useEffect(() => {
     if (!isTwiceRef.current) {
-      Axios.post(`${API_ENDPOINTS.LINEPAY}/confirm`, {
-        transactionId: transactionId,
-        orderId: orderId,
-      }).then((res) => {
-        if (res.data.status === "success") {
-          toastTC.current.show({
-            severity: "success",
-            summary: "通知",
-            detail: res.data.message,
-            life: 3000,
-          });
-          setTimeout(() => {
-            window.location.replace(`${API_ENDPOINTS.HOME}/`);
-          }, 1000);
-        }
+      confirmLinePay({ transactionId, orderId }, () => {
+        setTimeout(() => {
+          window.location.replace(`${getHomeUrl()}/`);
+        }, 1000);
       });
       isTwiceRef.current = true;
     }
-  }, [transactionId, orderId]);
+  }, [transactionId, orderId, confirmLinePay]);
 
   return (
     <div>
-      <Toast ref={toastTC} position="top-center" />
+      <Toast ref={toastRef} position="top-center" />
     </div>
   );
 }

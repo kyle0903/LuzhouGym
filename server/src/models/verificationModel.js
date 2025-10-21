@@ -8,7 +8,7 @@ class VerificationModel {
     // 先刪除舊的驗證碼
     await this.deleteByUserId(userId);
 
-    const sql = 'INSERT INTO random_table(user_id, randomCode) VALUES(?, ?)';
+    const sql = 'INSERT INTO random_table(user_id, randomCode) VALUES($1, $2)';
     await query(sql, [userId, randomCode]);
   }
 
@@ -16,7 +16,7 @@ class VerificationModel {
    * 根據驗證碼查詢
    */
   async findByCode(randomCode) {
-    const sql = 'SELECT * FROM random_table WHERE randomCode = ?';
+    const sql = 'SELECT * FROM random_table WHERE randomCode = $1';
     const results = await query(sql, [randomCode]);
     return results[0] || null;
   }
@@ -25,7 +25,7 @@ class VerificationModel {
    * 根據用戶 ID 刪除驗證碼
    */
   async deleteByUserId(userId) {
-    const sql = 'DELETE FROM random_table WHERE user_id = ?';
+    const sql = 'DELETE FROM random_table WHERE user_id = $1';
     await query(sql, [userId]);
   }
 }

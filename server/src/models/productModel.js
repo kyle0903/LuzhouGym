@@ -13,7 +13,7 @@ class ProductModel {
    * 根據 ID 取得產品
    */
   async findById(id) {
-    const sql = 'SELECT * FROM product_info WHERE id = ?';
+    const sql = 'SELECT * FROM product_info WHERE id = $1';
     const results = await query(sql, [id]);
     return results[0] || null;
   }
@@ -22,7 +22,7 @@ class ProductModel {
    * 根據名稱取得產品
    */
   async findByName(name) {
-    const sql = 'SELECT * FROM product_info WHERE name = ?';
+    const sql = 'SELECT * FROM product_info WHERE name = $1';
     const results = await query(sql, [name]);
     return results[0] || null;
   }
@@ -31,7 +31,7 @@ class ProductModel {
    * 更新產品數量
    */
   async updateQuantity(productName, quantity) {
-    const sql = 'UPDATE product_info SET quantity = quantity - ? WHERE name = ?';
+    const sql = 'UPDATE product_info SET quantity = quantity - $1 WHERE name = $2';
     await query(sql, [quantity, productName]);
   }
 }

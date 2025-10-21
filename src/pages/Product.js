@@ -3,141 +3,134 @@ import { Button } from "primereact/button";
 import { Card } from "primereact/card";
 import { Rating } from "primereact/rating";
 import { Tag } from "primereact/tag";
-import Axios from "axios";
 import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { Toast } from "primereact/toast";
 import Navbar from "../components/Navbar";
-import { API_ENDPOINTS } from '../services/api';
+import { useAuth, useProduct, useNotification } from '../hooks';
+
 function Product() {
-  //產品資料
-  const [products, setProducts] = useState([]);
-  //判斷useEffect是否執行兩次
+  // Hooks
+  const { verifyToken } = useAuth();
+  const { getAllProducts, addToCart, getCartCount, products, loading } = useProduct();
+  const { toastRef, showError, showWarn } = useNotification();
   const isTwiceRef = useRef(false);
-  //管理每個Dialog的顯示狀態
-  const [dialogStates, setDialogStates] = useState({});
-  //token
+
+  // 狀態
   const [token] = useState(window.localStorage.getItem("token"));
-  //會員id
-  const [userId, setUserId] = useState("");
-  //商品數量
+  const [userId, setUserId] = useState(0);
+  const [dialogStates, setDialogStates] = useState({});
   const [selectedNum, setSelectedNum] = useState(0);
+  const [shopNum, setShopNum] = useState(0);
+  const [imageLoaded, setImageLoaded] = useState({});
+
   const items = Array.from({ length: 100 }).map((_, i) => ({
     label: `${i + 1}`,
     value: i + 1,
   }));
-  //通知
-  const toastTC = useRef(null);
-  //購物車數量
-  const [shopNum, setShopNum] = useState(0);
+
   useEffect(() => {
     if (!isTwiceRef.current) {
-      Axios.get(API_ENDPOINTS.PRODUCT).then((res) => {
-        setProducts(res.data.slice(0, 4));
-      });
+      getAllProducts();
       if (token) {
-        Axios.post(API_ENDPOINTS.TOKEN, { token: token }).then(
-          (data) => {
-            if (data.data === false) {
-              setUserId(0);
-            } else {
-              setUserId(data.data.id);
-            }
+        verifyToken(token).then((data) => {
+          if (data === false) {
+            setUserId(0);
+          } else {
+            setUserId(data.id);
           }
-        );
+        });
+      } else {
+        setUserId(0);
       }
       isTwiceRef.current = true;
     }
-  }, [token]);
+  }, [token, getAllProducts, verifyToken]);
+
   const getSeverity = (product) => {
     switch (product.inventoryStatus) {
       case "INSTOCK":
         return "success";
-
       case "LOWSTOCK":
         return "warning";
-
       case "OUTOFSTOCK":
         return "danger";
-
       default:
         return null;
     }
   };
+
   const handleDialogToggle = (productId) => {
     setDialogStates((prevState) => ({
-      ...prevState, //因為dialogstate是物件，這邊是複製物件當前所有id的dialog狀態，例如:{1:true,2:false,3:false}
-      [productId]: !prevState[productId], // 切換Dialog的顯示狀態
+      ...prevState,
+      [productId]: !prevState[productId],
     }));
   };
 
   const formatDescription = (std) => {
+    if (!std) return "暫無商品規格說明";
     const formattedData = std.replace(/\\n/g, "\n");
     return formattedData;
   };
-  const addCart = (productId, productName, price, productPic) => {
-    if (userId === 0) {
-      toastTC.current.show({
-        severity: "error",
-        summary: "警告",
-        detail: "請至會員中心登入會員帳號",
-        life: 3000,
-      });
-    } else if (selectedNum !== 0) {
-      Axios.post(API_ENDPOINTS.ADDCART, {
-        userId: userId,
-        productId: productId,
-        productName: productName,
-        price: price,
-        productNum: selectedNum,
-        productPic: productPic,
-      }).then((res) => {
-        if (res.data.status === "success") {
-          Axios.get(`${API_ENDPOINTS.ORDER}/${userId}`).then((res) => {
-            setShopNum(res.data.length);
-          });
-          handleDialogToggle(productId);
-          toastTC.current.show({
-            severity: "success",
-            summary: "通知",
-            detail: "已加到購物車",
-            life: 3000,
-          });
-        }
-      });
-    } else {
-      toastTC.current.show({
-        severity: "warn",
-        summary: "提醒",
-        detail: "請先選擇商品數量",
-        life: 3000,
-      });
+
+  const handleImageLoad = (productId) => {
+    setImageLoaded((prev) => ({
+      ...prev,
+      [productId]: true,
+    }));
+  };
+
+  const handleAddCart = (productId, productName, price, productPic) => {
+    if (userId === 0 || !userId) {
+      showError("警告", "請至會員中心登入會員帳號");
+      return;
     }
+
+    if (selectedNum === 0 || !selectedNum) {
+      showWarn("提醒", "請先選擇商品數量");
+      return;
+    }
+
+    addToCart(
+      {
+        userId,
+        productId,
+        productName,
+        price,
+        productNum: selectedNum,
+        productPic,
+      },
+      async () => {
+        const count = await getCartCount(userId);
+        setShopNum(count);
+        handleDialogToggle(productId);
+      }
+    );
   };
 
   return (
     <div>
+      <Toast ref={toastRef} position="top-center" />
       <Navbar shopNum={shopNum} setShopNum={setShopNum} />
-      <Toast ref={toastTC} position="top-center" />
-      <div style={{ display: "flex" }}>
-        {products.map((product) => {
+      <div className="products-container">
+        {products.slice(0, 4).map((product) => {
           return (
-            <div>
+            <div key={product.id} className="product-card-wrapper">
               <Dialog
                 header={product.name}
-                visible={dialogStates[product.id]} // 使用物件來取得對應的Dialog顯示狀態
+                visible={dialogStates[product.id]}
                 style={{ width: "50vw" }}
-                onHide={() => handleDialogToggle(product.id)} // 切換Dialog的顯示狀態
+                onHide={() => handleDialogToggle(product.id)}
               >
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <img
-                    src={`https://primefaces.org/cdn/primereact/images/product/${product.image}`}
+                    src={product.product_pic}
                     alt={product.name}
                     className="product_pic_info"
                   />
 
                   <div style={{ whiteSpace: "pre-wrap" }}>
-                    {formatDescription(product.standard)}
+                    {formatDescription(product.description)}
                   </div>
                 </div>
                 <div className="btn_shop">
@@ -154,41 +147,52 @@ function Product() {
                     <Button
                       icon="pi pi-cart-plus"
                       className="p-button-rounded"
-                      disabled={product.inventoryStatus === "OUTOFSTOCK"}
+                      disabled={product.inventoryStatus === "OUTOFSTOCK" || loading}
                       onClick={() =>
-                        addCart(
+                        handleAddCart(
                           product.id,
                           product.name,
                           product.price,
-                          product.image
+                          product.product_pic
                         )
                       }
-                    ></Button>
+                      loading={loading}
+                    />
                   </div>
                 </div>
               </Dialog>
               <Card
-                style={{ margin: "14px", cursor: "pointer" }}
+                style={{ cursor: "pointer" }}
                 onClick={() => handleDialogToggle(product.id)}
               >
                 <div className="product">
                   <div>
                     <i className="pi pi-tag" style={{ fontSize: "1rem" }}></i>
-                    <span style={{ fontWeight: "bold" }}>
+                    <span style={{ fontWeight: "bold", marginLeft: "5px" }}>
                       {product.category}
                     </span>
                   </div>
                   <Tag
                     value={product.inventoryStatus}
                     severity={getSeverity(product)}
-                  ></Tag>
+                  />
+                </div>
+                <div className="product-image-container">
+                  {!imageLoaded[product.id] && (
+                    <div className="product-image-skeleton"></div>
+                  )}
+                  <img
+                    src={product.product_pic}
+                    alt={product.name}
+                    style={{
+                      opacity: imageLoaded[product.id] ? 1 : 0,
+                      position: imageLoaded[product.id] ? "static" : "absolute",
+                    }}
+                    onLoad={() => handleImageLoad(product.id)}
+                    loading="lazy"
+                  />
                 </div>
                 <div>
-                  <img
-                    src={`https://primefaces.org/cdn/primereact/images/product/${product.image}`}
-                    alt={product.name}
-                    style={{ marginTop: "10px", marginBottom: "10px" }}
-                  />
                   <div style={{ marginBottom: "5px", fontWeight: "bold" }}>
                     {product.name}
                   </div>
@@ -197,10 +201,18 @@ function Product() {
                     readOnly
                     cancel={false}
                     style={{ marginBottom: "5px" }}
-                  ></Rating>
+                  />
                 </div>
                 <div className="product">
-                  <span>${product.price}</span>
+                  <span
+                    style={{
+                      fontSize: "1.2rem",
+                      fontWeight: "bold",
+                      color: "#1069B3",
+                    }}
+                  >
+                    ${product.price}
+                  </span>
                 </div>
               </Card>
             </div>

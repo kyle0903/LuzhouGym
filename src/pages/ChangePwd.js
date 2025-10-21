@@ -1,67 +1,51 @@
-import { React, useRef, useState } from "react";
+import { React, useState } from "react";
 import { Password } from "primereact/password";
-import { Toast } from "primereact/toast";
 import { Button } from "primereact/button";
-import Axios from "axios";
-import { API_ENDPOINTS } from '../services/api';
+import { Toast } from "primereact/toast";
+import { useAuth, useNotification } from '../hooks';
+
 function ChangePwd({ id, setToken }) {
+  // Hooks
+  const { changePassword, loading } = useAuth();
+  const { toastRef, showError } = useNotification();
+
+  // 狀態
   const [newPwd, setNewPwd] = useState("");
   const [oldPwd, setOldPwd] = useState("");
   const [pwdCheck, setPwdCheck] = useState("");
-  //通知
-  const toastTC = useRef(null);
-  //清除所有欄位
+
+  // 清除所有欄位
   function ClearAll() {
     setNewPwd("");
     setPwdCheck("");
     setOldPwd("");
   }
-  //送出修改密碼資料
+
+  // 送出修改密碼資料
   function CommitData() {
     if (oldPwd === "" || newPwd === "" || pwdCheck === "") {
-      toastTC.current.show({
-        severity: "error",
-        summary: "警告",
-        detail: "有空值未填寫",
-        life: 3000,
-      });
-    } else if (newPwd !== pwdCheck) {
-      toastTC.current.show({
-        severity: "error",
-        summary: "警告",
-        detail: "密碼不同步",
-        life: 3000,
-      });
-    } else {
-      Axios.post(API_ENDPOINTS.CHANGEPWD, {
-        id: id,
-        oldPwd: oldPwd,
-        newPwd: newPwd,
-      }).then((res) => {
-        if (res.data.status === "success") {
-          toastTC.current.show({
-            severity: "success",
-            summary: "通知",
-            detail: res.data.message,
-            life: 3000,
-          });
-          setTimeout(() => {
-            localStorage.clear();
-            setToken(null);
-            window.location.replace("/login");
-          }, 3000);
-        } else {
-          toastTC.current.show({
-            severity: "error",
-            summary: "警告",
-            detail: res.data.message,
-            life: 3000,
-          });
-        }
-      });
+      showError("警告", "有空值未填寫");
+      return;
     }
+
+    if (newPwd !== pwdCheck) {
+      showError("警告", "密碼不一致");
+      return;
+    }
+
+    changePassword(
+      { id, oldPwd, newPwd },
+      () => {
+        setTimeout(() => {
+          localStorage.clear();
+          setToken(null);
+          window.location.replace("/login");
+        }, 3000);
+      }
+    );
   }
-  //顯示Card的最尾端按鈕的部分
+
+  // 顯示Card的最尾端按鈕的部分
   const footer = (
     <div
       className="flex flex-wrap justify-content-end gap-2"
@@ -71,23 +55,23 @@ function ChangePwd({ id, setToken }) {
         label="確認修改"
         icon="pi pi-check"
         style={{ marginRight: "20px" }}
-        onClick={() => {
-          CommitData();
-        }}
+        onClick={CommitData}
+        disabled={loading}
+        loading={loading}
       />
       <Button
         label="清除所有欄位"
         icon="pi pi-times"
         className="p-button-outlined p-button-secondary"
-        onClick={() => {
-          ClearAll();
-        }}
+        onClick={ClearAll}
+        disabled={loading}
       />
-      <Toast ref={toastTC} position="top-center" />
     </div>
   );
+
   return (
     <div>
+      <Toast ref={toastRef} position="top-center" />
       <div className="p-inputgroup flex-1">
         <span className="p-inputgroup-addon">
           <i className="pi pi-unlock"></i>

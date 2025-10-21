@@ -1,36 +1,36 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import Axios from "axios";
 import { Card } from "primereact/card";
 import { Button } from "primereact/button";
-import { Toast } from "primereact/toast";
-import { API_ENDPOINTS } from '../services/api';
+import { useOrder, usePayment } from "../hooks";
+
 function Order() {
-  //會員id
+  // Hooks
   const { id } = useParams();
-  //購物車數量
-  const [shopNum, setShopNum] = useState(0);
-  //訂單資料
-  const [orders, setOrders] = useState([]);
-  //判斷結帳按鈕的display
-  const [shopBtn, setShopBtn] = useState("inline-flex");
-  //加購物車的字串
-  const [cartString, setCartString] = useState("");
-  //通知
-  const toastTC = useRef(null);
+  const { getOrders, deleteOrder, orders, loading: orderLoading } = useOrder();
+  const { initiateLinePay, loading: paymentLoading } = usePayment();
   const twiceRef = useRef(false);
+
+  // 狀態
+  const [shopNum, setShopNum] = useState(0);
+  const [shopBtn, setShopBtn] = useState("inline-flex");
+  const [cartString, setCartString] = useState("");
+
+  const loading = orderLoading || paymentLoading;
+
   useEffect(() => {
     if (!twiceRef.current) {
-      Load();
+      loadOrders();
       twiceRef.current = true;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  function Load() {
-    Axios.get(`${API_ENDPOINTS.ORDER}/${id}`).then((res) => {
-      setOrders(res.data);
-      let shopNums = res.data.length; //因為同步問題，如果直接setShopNum會比其他同步時間慢，無法獲得想要的shopNum值
+
+  const loadOrders = async () => {
+    const data = await getOrders(id);
+    if (data) {
+      const shopNums = data.length;
       setShopNum(shopNums);
       if (shopNums === 0) {
         setShopBtn("none");
@@ -38,47 +38,35 @@ function Order() {
       } else {
         setShopBtn("inline-flex");
       }
-      console.log(res.data);
-    });
-  }
+    }
+  };
 
-  function CheckOut() {
-    Axios.get(`${API_ENDPOINTS.LINEPAY}/${id}`).then((res) => {
-      if (res.data.status === "success") {
-        window.location.replace(res.data.urls);
-      }
+  const handleCheckOut = async () => {
+    const paymentUrl = await initiateLinePay(id);
+    if (paymentUrl) {
+      window.location.replace(paymentUrl);
+    }
+  };
+
+  const handleDeleteOrder = (cart_id) => {
+    deleteOrder(cart_id, () => {
+      loadOrders();
     });
-  }
-  function DeleteOrder(cart_id) {
-    Axios.delete(`${API_ENDPOINTS.ORDER}/delete/${cart_id}`).then(
-      (res) => {
-        if (res.data.status === "success") {
-          toastTC.current.show({
-            severity: "success",
-            summary: "通知",
-            detail: res.data.message,
-            life: 3000,
-          });
-          Load();
-        }
-      }
-    );
-  }
+  };
 
   return (
     <div>
-      <Toast ref={toastTC} position="top-center" />
       <Navbar shopNum={shopNum} setShopNum={setShopNum} />
       {shopNum !== 0 ? (
         <div>
           <h3 style={{ textAlign: "center", marginTop: "30px" }}>訂單資料</h3>
           {orders.map((order) => {
             return (
-              <div>
+              <div key={order.cart_id}>
                 <Card className="order_card">
                   <div style={{ display: "flex" }}>
                     <img
-                      src={`https://primefaces.org/cdn/primereact/images/product/${order.product_pic}`}
+                      src={`${order.product_pic}`}
                       alt={order.product_name}
                       style={{
                         marginTop: "10px",
@@ -124,7 +112,9 @@ function Order() {
                         label="刪除"
                         style={{ height: "100%" }}
                         severity="danger"
-                        onClick={() => DeleteOrder(order.cart_id)}
+                        onClick={() => handleDeleteOrder(order.cart_id)}
+                        disabled={loading}
+                        loading={orderLoading}
                       />
                     </div>
                   </div>
@@ -143,8 +133,10 @@ function Order() {
           >
             <Button
               label="結帳去"
-              onClick={CheckOut}
+              onClick={handleCheckOut}
               style={{ display: shopBtn }}
+              disabled={loading}
+              loading={paymentLoading}
             />
           </div>
         </div>

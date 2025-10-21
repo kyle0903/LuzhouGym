@@ -1,15 +1,6 @@
 -- ====================================
--- 瀘州健身房管理系統 - PostgreSQL 初始化腳本
--- ====================================
-
--- 創建資料庫（需要先以超級用戶登入執行）
--- CREATE DATABASE luzhou_gym WITH ENCODING 'UTF8';
--- \c luzhou_gym;
-
--- ====================================
 -- 1. 會員登入資訊表
 -- ====================================
-DROP TABLE IF EXISTS member_info CASCADE;
 
 CREATE TABLE member_info (
   id SERIAL PRIMARY KEY,
@@ -27,13 +18,12 @@ CREATE INDEX idx_member_vertify ON member_info(vertify);
 -- ====================================
 -- 2. 會員基本資料表
 -- ====================================
-DROP TABLE IF EXISTS member_basic_info CASCADE;
 
 CREATE TABLE member_basic_info (
   id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL UNIQUE,
-  age INTEGER DEFAULT NULL,
-  gender VARCHAR(10) DEFAULT NULL,
+  age INTEGER DEFAULT 20,
+  gender VARCHAR(10) DEFAULT 'man',
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES member_info(id) ON DELETE CASCADE
 );
@@ -43,12 +33,11 @@ CREATE INDEX idx_member_basic_user_id ON member_basic_info(user_id);
 -- ====================================
 -- 3. 商品資訊表
 -- ====================================
-DROP TABLE IF EXISTS product_info CASCADE;
 
 CREATE TABLE product_info (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
-  price NUMERIC(10,2) NOT NULL,
+  price INTEGER NOT NULL,
   quantity INTEGER NOT NULL DEFAULT 0,
   description TEXT DEFAULT NULL,
   product_pic VARCHAR(255) DEFAULT NULL,
@@ -65,16 +54,15 @@ CREATE INDEX idx_product_status ON product_info(status);
 -- ====================================
 -- 4. 訂單資訊表
 -- ====================================
-DROP TABLE IF EXISTS order_info CASCADE;
 
 CREATE TABLE order_info (
   cart_id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL,
   product_id INTEGER NOT NULL,
   product_name VARCHAR(100) NOT NULL,
-  product_price NUMERIC(10,2) NOT NULL,
+  product_price INTEGER NOT NULL,
   quantity INTEGER NOT NULL DEFAULT 1,
-  total NUMERIC(10,2) NOT NULL,
+  total INTEGER NOT NULL,
   product_pic VARCHAR(255) DEFAULT NULL,
   pay SMALLINT DEFAULT 0 CHECK (pay IN (0, 1)),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -91,7 +79,6 @@ CREATE INDEX idx_order_created_at ON order_info(created_at);
 -- ====================================
 -- 5. 驗證碼表
 -- ====================================
-DROP TABLE IF EXISTS random_table CASCADE;
 
 CREATE TABLE random_table (
   id SERIAL PRIMARY KEY,
@@ -108,22 +95,14 @@ CREATE INDEX idx_random_created_at ON random_table(created_at);
 -- ====================================
 -- 插入測試資料
 -- ====================================
-INSERT INTO member_info (username, password, email, vertify) VALUES
-('testuser1', '$2a$10$example.hash.password.here', 'test1@example.com', 1),
-('testuser2', '$2a$10$example.hash.password.here', 'test2@example.com', 1);
 
-INSERT INTO member_basic_info (user_id, age, gender) VALUES
-(1, 25, '男'),
-(2, 28, '女');
-
+-- 插入測試商品
 INSERT INTO product_info (name, price, quantity, description, category, product_pic) VALUES
-('月費會籍', 1200.00, 999, '單月健身房使用權限', '會籍', '/images/monthly_membership.jpg'),
-('季費會籍', 3200.00, 999, '三個月健身房使用權限，享95折優惠', '會籍', '/images/quarterly_membership.jpg'),
-('年費會籍', 10800.00, 999, '全年健身房使用權限，享75折優惠', '會籍', '/images/annual_membership.jpg'),
-('個人教練課程 (5堂)', 5000.00, 50, '一對一私人教練課程，5堂優惠組合', '課程', '/images/personal_training.jpg'),
-('團體課程 (10堂)', 3000.00, 100, '團體健身課程，10堂優惠組合', '課程', '/images/group_class.jpg'),
-('乳清蛋白粉', 1500.00, 200, '高品質乳清蛋白粉，1kg裝', '營養品', '/images/protein.jpg'),
-('健身手套', 350.00, 150, '專業健身手套，防滑耐磨', '配件', '/images/gloves.jpg'),
-('運動毛巾', 200.00, 300, '吸汗快乾運動毛巾', '配件', '/images/towel.jpg');
+('乳清蛋白粉', 1500, 200, '高品質乳清蛋白粉，1.7kg裝', '營養品', 'https://images.unsplash.com/photo-1584116831322-57d789ed6a40?q=80&w=360'),
+('健身手套', 350, 150, '專業健身手套，防滑耐磨', '配件', 'https://images.unsplash.com/photo-1579178937321-3ac1437a28ae?q=80&w=360'),
+('運動毛巾', 200, 300, '吸汗快乾運動毛巾', '配件', 'https://images.unsplash.com/photo-1639298107851-058984903954?q=80&w=360');
+
+-- 注意：會員資料由註冊流程自動建立
+-- member_basic_info 會在首次訪問時由 API 自動建立
 
 SELECT '資料庫初始化完成！' as message;

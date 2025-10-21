@@ -1,43 +1,35 @@
-import { useRef } from 'react';
-
 /**
- * 統一的通知 Hook
- * 取代重複的 Toast 邏輯
+ * Unified notification hook that shares a single Toast ref across the app.
  */
+const toastRef = { current: null };
+
+const showToast = (severity, summary, detail) => {
+  toastRef.current?.show({
+    severity,
+    summary,
+    detail: detail || summary,
+    life: 3000,
+  });
+};
+
 export const useNotification = () => {
-  const toastRef = useRef(null);
+  const showSuccess = (summary, detail = "") =>
+    showToast("success", summary, detail);
 
-  const showSuccess = (message, detail = '') => {
-    toastRef.current?.show({
-      severity: 'success',
-      summary: message,
-      detail,
-      life: 3000,
-    });
-  };
+  const showError = (summary, detail = "") =>
+    showToast("error", summary, detail);
 
-  const showError = (message, detail = '') => {
-    toastRef.current?.show({
-      severity: 'error',
-      summary: '警告',
-      detail: detail || message,
-      life: 3000,
-    });
-  };
+  const showInfo = (summary, detail = "") =>
+    showToast("info", summary, detail);
 
-  const showInfo = (message, detail = '') => {
-    toastRef.current?.show({
-      severity: 'info',
-      summary: '通知',
-      detail: detail || message,
-      life: 3000,
-    });
-  };
+  const showWarn = (summary, detail = "") =>
+    showToast("warn", summary, detail);
 
   return {
     toastRef,
     showSuccess,
     showError,
     showInfo,
+    showWarn,
   };
 };
